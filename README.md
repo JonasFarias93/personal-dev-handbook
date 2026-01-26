@@ -100,6 +100,13 @@ Ele evolui lentamente, conforme experiência real se acumula.
 
 ---
 
+## 🤝 Contribuindo
+
+Sugestões e correções são bem-vindas via Issues.
+Veja `CONTRIBUTING.md`.
+
+---
+
 ## 📌 Nota final
 
 Se um dia este repositório deixar de fazer sentido,  
