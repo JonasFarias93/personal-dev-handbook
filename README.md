@@ -40,7 +40,7 @@ Este repositório deve ser usado como:
 ## 🗂️ Estrutura
 
 A organização segue **áreas de conhecimento**, não projetos específicos.
-
+```
 dev-notes/
 ├── git/ # Versionamento, fluxo, commits
 ├── python/ # Ambiente, dependências, testes
@@ -49,7 +49,7 @@ dev-notes/
 ├── architecture/ # DDD, Clean Architecture, decisões
 ├── templates/ # Templates reutilizáveis
 └── README.md
-
+```
 
 Cada arquivo deve responder **uma pergunta clara**.
 
