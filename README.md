@@ -1,113 +1,202 @@
 # Dev Notes — Referência Técnica Pessoal
 
-Este repositório é um **arquivo pessoal de referência técnica**.
+Este repositório é um **arquivo pessoal de referência técnica consolidada**.
 
-Ele existe para registrar **como eu decido fazer as coisas**, não apenas *como elas funcionam*.  
-É um apoio de memória para padrões, decisões, processos e boas práticas que eu quero repetir conscientemente ao longo do tempo.
+Ele registra como eu estruturo projetos, tomo decisões e organizo execução.
+Não é apenas sobre ferramentas — é sobre **padrões validados na prática**.
 
-> Não é um tutorial.  
-> Não é documentação corporativa.  
-> É um guia prático escrito para mim mesmo.
-
----
-
-## 🎯 Objetivo
-
-- Centralizar **padrões pessoais** de desenvolvimento
-- Registrar **decisões técnicas** e o *porquê* delas
-- Evitar reaprender do zero a cada projeto
-- Servir como base para documentações de outros projetos
-- Reduzir fricção em decisões recorrentes (Git, arquitetura, setup, etc.)
+> Não é tutorial.
+> Não é documentação corporativa.
+> É um sistema pessoal de engenharia.
 
 ---
 
-## 🧠 Como usar este repositório
+# 🎯 Objetivo
 
-Este repositório deve ser usado como:
+* Centralizar padrões consolidados de desenvolvimento
+* Registrar decisões técnicas validadas na prática
+* Evitar reaprender do zero a cada projeto
+* Servir como base inicial para novos projetos
+* Reduzir fricção em decisões recorrentes
 
-- 📖 **Consulta rápida**
-- 📋 **Fonte de templates**
-- 🧭 **Validador de decisões técnicas**
+Este repositório deve permitir que eu retome qualquer projeto — mesmo meses depois — com clareza estrutural e consistência.
+
+---
+
+# 🧠 Como usar este repositório
+
+Use como:
+
+* 📖 Consulta rápida de padrões já definidos
+* 📋 Fonte de templates reutilizáveis
+* 🧭 Validador de decisões antes de implementar algo novo
 
 ### Exemplos práticos
 
-- Antes de criar commits → consultar `git/commits.md`
-- Antes de estruturar um projeto → consultar `architecture/`
-- Antes de configurar ambiente Python → consultar `python/`
+* Antes de criar commits → `git/commits.md`
+* Antes de definir branches → `git/branching.md`
+* Antes de fazer release → `git/release.md`
+* Antes de estruturar arquitetura → `architecture/`
+* Antes de configurar Python → `python/`
+* Antes de configurar CI → `workflow/ci.md`
+* Antes de abrir Issues → `workflow/issues.md`
 
 ---
 
-## 🗂️ Estrutura
+# 🧱 Sistema de Engenharia
 
-A organização segue **áreas de conhecimento**, não projetos específicos.
+Este handbook está organizado como um **sistema completo de engenharia**:
+
+## 🏗 Arquitetura
+
+* `architecture/clean-architecture.md`
+* `architecture/ddd.md`
+* `architecture/decisions.md` (ADR)
+
+Define como estruturo sistemas e tomo decisões arquiteturais.
+
+---
+
+## 🐍 Python
+
+* `python/pyproject.md`
+* `python/testing.md`
+* `python/uv.md`
+* `python/venv-vs-conda.md`
+
+Define ambiente, dependências, testes e padrão oficial de setup.
+
+---
+
+## 🌐 Django
+
+* `django/mvt.md`
+* `django/project-structure.md`
+* `django/settings.md`
+
+Define como adapto Django à arquitetura, não o contrário.
+
+---
+
+## 🐳 Docker
+
+* `docker/_dockerfile.md`
+* `docker/compose.md`
+* `docker/debugging.md`
+
+Define ambiente containerizado previsível e reproduzível.
+
+---
+
+## 🌿 Git
+
+* `git/commits.md`
+* `git/branching.md`
+* `git/release.md`
+
+Define versionamento, fluxo de branches e política de releases.
+
+---
+
+## ⚙️ Workflow (Governança)
+
+* `workflow/roadmap.md`
+* `workflow/issues.md`
+* `workflow/DoD.md`
+* `workflow/github-projects.md`
+* `workflow/ci.md`
+
+Define execução, qualidade e gestão técnica.
+
+---
+
+## 📦 Templates
+
+* `templates/README-template.md`
+* `templates/architecture-template.md`
+
+Modelos reutilizáveis para iniciar novos projetos com consistência.
+
+---
+
+# 🗂 Estrutura do repositório
+
 ```
-dev-notes/
-├── git/ # Versionamento, fluxo, commits
-├── python/ # Ambiente, dependências, testes
-├── django/ # Estrutura, MVT, boas práticas
-├── docker/ # Dockerfile, compose, debug
-├── architecture/ # DDD, Clean Architecture, decisões
-├── templates/ # Templates reutilizáveis
+personal-dev-handbook/
+├── architecture/
+├── python/
+├── django/
+├── docker/
+├── git/
+├── workflow/
+├── templates/
+├── CONTRIBUTING.md
 └── README.md
 ```
 
-Cada arquivo deve responder **uma pergunta clara**.
+Cada arquivo deve responder uma pergunta clara.
+
+Se um documento não orienta decisão real,
+ele deve ser simplificado ou removido.
 
 ---
 
-## ✍️ Padrão de escrita dos documentos
+# ✍️ Padrão de escrita
 
-Todo documento deve seguir, sempre que possível, este formato:
+Sempre que possível, documentos seguem:
 
-1. **Contexto** — quando isso se aplica  
-2. **Regra pessoal** — como eu decido fazer  
-3. **Exemplo prático**  
-4. **Anti-padrões** — o que evitar  
-5. **Checklist** — validação rápida  
+1. Contexto
+2. Regra prática
+3. Exemplos
+4. Anti‑padrões
+5. Checklist
+6. Fonte da Verdade (quando aplicável)
 
-Se não for possível responder essas partes, o documento ainda não está maduro.
+Decisões estruturais relevantes devem gerar ADR.
 
 ---
 
-## 🔄 Atualização dos conteúdos
+# 🔄 Atualização
 
-Este repositório **não é atualizado por obrigação**.
+Este repositório não é atualizado por obrigação.
 
 Atualizar somente quando:
 
-- uma decisão mudou
-- um padrão se mostrou ruim
-- um novo aprendizado foi consolidado
-- um erro merece ser registrado para não se repetir
+* Uma decisão mudou de forma consistente
+* Um padrão foi validado em múltiplos projetos
+* Um erro relevante precisa ser registrado
 
-Aprendizado temporário **não entra aqui**.
-
----
-
-## 🧱 Princípios
-
-- Clareza > completude
-- Decisão explícita > convenção implícita
-- Processo > ferramenta
-- Simplicidade sustentável > complexidade prematura
+Aprendizado temporário não entra aqui.
 
 ---
 
-## 🚧 Status
+# 🧭 Princípios
 
-Este repositório é **vivo**, mas **não volátil**.  
-Ele evolui lentamente, conforme experiência real se acumula.
+* Clareza > completude
+* Decisão explícita > convenção implícita
+* Processo > ferramenta
+* Simplicidade sustentável > complexidade prematura
+* Consistência entre projetos > inovação desnecessária
 
 ---
 
-## 🤝 Contribuindo
+# 🚧 Status
 
-Sugestões e correções são bem-vindas via Issues.
+Este repositório é vivo, mas não volátil.
+
+Ele evolui conforme experiência real se consolida.
+
+---
+
+# 🤝 Contribuindo
+
 Veja `CONTRIBUTING.md`.
 
 ---
 
-## 📌 Nota final
+# 📌 Nota final
 
-Se um dia este repositório deixar de fazer sentido,  
-isso significa que meus critérios mudaram — e isso também é aprendizado.
+Se este documento deixar de refletir minha prática real,
+a primeira ação deve ser atualizá-lo.
+
+Handbook desatualizado é pior do que nenhum handbook.

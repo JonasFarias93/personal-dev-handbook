@@ -1,226 +1,257 @@
 # DDD — Domain-Driven Design (Uso Prático)
 
-Este documento descreve **como eu aplico Domain-Driven Design (DDD)** na prática.
+Este documento descreve **como aplico Domain-Driven Design (DDD)** na prática.
 
-O objetivo não é implementar DDD “completo” ou acadêmico,
-mas usar seus conceitos para:
-- modelar melhor o domínio
-- proteger regras de negócio
-- melhorar comunicação
-- reduzir acoplamento acidental
+Não implemento DDD “acadêmico completo”.
+Uso seus conceitos para:
+
+* Modelar melhor o domínio
+* Proteger regras de negócio
+* Melhorar comunicação técnica
+* Reduzir acoplamento acidental
+* Sustentar crescimento do sistema
 
 DDD aqui é **ferramenta de clareza**, não dogma.
 
 ---
 
-## 🎯 Por que usar DDD
+# 🎯 Quando aplico DDD
 
-Uso DDD quando:
+Aplico DDD quando:
 
-- o domínio é relevante
-- regras de negócio são complexas
-- decisões importam mais do que CRUD
-- o sistema tende a crescer
+* O domínio é relevante
+* Existem regras não triviais
+* Estados e transições importam
+* O sistema tende a evoluir
 
-DDD ajuda a responder:
-> “O que realmente importa neste sistema?”
-
----
-
-## 🧠 Princípios que eu sigo
-
-### Linguagem ubíqua
-
-O código deve usar **as mesmas palavras do negócio**.
-
-- nomes de classes, métodos e atributos
-- documentação
-- conversas técnicas
-
-Se o nome não faz sentido fora do código,
-provavelmente o modelo está errado.
+Se é apenas CRUD simples, não forço DDD completo.
 
 ---
 
-### Domínio no centro
+# 🧠 Princípios fundamentais que sigo
+
+## 🔤 Linguagem Ubíqua
+
+O código deve usar **a mesma linguagem do negócio**.
+
+Isso vale para:
+
+* Nomes de classes
+* Métodos
+* Atributos
+* Documentação
+* ADRs
+
+Se o nome não faz sentido fora do código, o modelo provavelmente está errado.
+
+---
+
+## 🏛 Domínio no centro
 
 O domínio:
-- expressa regras
-- valida invariantes
-- representa conceitos reais
+
+* Expressa regras
+* Garante invariantes
+* Define estados válidos
+* Representa conceitos reais
 
 Ele **não conhece**:
-- banco de dados
-- framework
-- transporte (HTTP, fila, etc.)
 
----
-
-### Modelagem antes de persistência
-
-Primeiro eu penso:
-- quais são os conceitos?
-- quais regras existem?
-- quais estados são válidos?
-
-Depois eu penso:
-- como salvar isso
-- como expor isso
+* Banco de dados
+* Framework
+* HTTP
+* Filas
+* ORM
 
 Persistência é detalhe.
 
 ---
 
-## 🧱 Blocos principais do domínio
+## 🧱 Modelagem antes de persistência
 
-### Entidades
+Ordem mental correta:
+
+1. Quais são os conceitos?
+2. Quais regras existem?
+3. Quais estados são válidos?
+4. O que pode mudar?
+5. O que deve ser protegido?
+
+Só depois penso em:
+
+* Como salvar
+* Como expor
+* Como integrar
+
+---
+
+# 🧩 Blocos estruturais do domínio
+
+## 1️⃣ Entidades
 
 Usadas quando:
-- identidade importa
-- o objeto muda ao longo do tempo
+
+* Identidade importa
+* Estado muda ao longo do tempo
 
 Características:
-- possuem ID
-- possuem comportamento
-- garantem invariantes
 
-Exemplo:
-- Chamado
-- Pedido
-- Usuário
+* Possuem ID
+* Contêm comportamento
+* Garantem invariantes
+
+Evito entidades anêmicas.
 
 ---
 
-### Value Objects
+## 2️⃣ Value Objects
 
 Usados quando:
-- identidade não importa
-- valor define o objeto
-- são imutáveis
+
+* Identidade não importa
+* Valor define o objeto
+* Devem ser imutáveis
 
 Características:
-- não possuem ID
-- são comparados por valor
-- encapsulam validações simples
 
-Exemplo:
-- Status
-- Endereço
-- Intervalo de datas
+* Sem ID
+* Comparação por valor
+* Encapsulam validações simples
 
 ---
 
-### Aggregates
+## 3️⃣ Aggregates
 
-Um **Aggregate** é um conjunto consistente de entidades
+Aggregate é um conjunto consistente de entidades
 com **uma raiz de agregação**.
 
-Regras:
-- acesso externo acontece apenas pela raiz
-- invariantes são protegidas dentro do aggregate
-- transações respeitam limites do aggregate
+Regras que sigo:
 
-Exemplo:
-- Chamado (raiz) → Itens, Status, Histórico
+* Acesso externo apenas pela raiz
+* Invariantes protegidas dentro do aggregate
+* Transações respeitam limite do aggregate
+
+Se dois objetos sempre mudam juntos, provavelmente pertencem ao mesmo aggregate.
 
 ---
 
-### Repositórios
+## 4️⃣ Repositórios
 
 Repositórios são **interfaces**, não implementações.
 
 Responsabilidade:
-- abstrair persistência
-- fornecer coleções de aggregates
+
+* Abstrair persistência
+* Fornecer aggregates
 
 Regras:
-- definidos no domínio ou application
-- implementados na infraestrutura
-- retornam aggregates, não registros crus
+
+* Definidos no domínio ou application
+* Implementados na infraestrutura
+* Não retornam dicionários crus
 
 ---
 
-## 🔁 Casos de uso (Application Layer)
+# 🔁 Casos de Uso (Application Layer)
 
 Casos de uso:
-- coordenam ações
-- chamam domínio
-- orquestram dependências
 
-Eles **não**:
-- contêm regra de negócio profunda
-- sabem detalhes de framework
-- fazem validação complexa de domínio
+* Orquestram ações
+* Coordenam domínio
+* Controlam fluxo
+
+Eles **não devem**:
+
+* Conter regra de negócio profunda
+* Conhecer detalhes de framework
 
 Regra prática:
+
 > Se a regra é do negócio, ela vive no domínio.
 
 ---
 
-## 🧪 Testabilidade
+# 🧪 Testabilidade como indicador
 
-DDD facilita:
+DDD bem aplicado permite:
 
-- testes focados em regras
-- testes sem banco
-- testes legíveis (“dado / quando / então”)
+* Testes claros de regras
+* Testes sem banco
+* Testes legíveis (dado / quando / então)
 
 Se testar é difícil:
-- regra está no lugar errado
-- modelo está fraco
+
+* Regra está no lugar errado
+* Modelo está fraco
+* Aggregate está mal definido
 
 ---
 
-## ⚖️ Trade-offs aceitos
+# ⚖️ Trade-offs conscientes
 
 Adotar DDD implica:
 
-- mais código
-- mais conceitos
-- curva de aprendizado maior
+* Mais código
+* Mais conceitos
+* Mais disciplina
 
 Aceito esses custos quando:
-- domínio justifica
-- longevidade do projeto importa
 
-Para CRUD simples, **não forço DDD**.
+* O domínio é central
+* O projeto terá longevidade
 
----
-
-## 🚫 Anti-padrões comuns
-
-Evitar:
-
-- entidades anêmicas
-- domínio só com getters/setters
-- regras espalhadas em services
-- repositórios retornando dicionários
-- usar DDD só como “nome bonito de pasta”
+Não aplico DDD completo em projetos triviais.
 
 ---
 
-## 🔄 DDD incremental
+# 🚫 Anti-padrões que evito
 
-DDD não precisa nascer completo.
-
-Eu aplico:
-- primeiro: linguagem e entidades
-- depois: invariantes e aggregates
-- por último: refinamentos (events, policies, etc.)
-
-DDD cresce junto com o entendimento do domínio.
+* Entidades anêmicas
+* Regra espalhada em services genéricos
+* Repositórios retornando estruturas cruas
+* Usar DDD apenas como organização de pastas
+* Ignorar limites de aggregate
 
 ---
 
-## 📚 Relação com outros documentos
+# 🔄 DDD incremental
 
-- `architecture/clean-architecture.md` — organização do sistema
-- `architecture/decisions.md` — decisões arquiteturais
-- `django/mvt.md` — adaptação ao Django
+DDD cresce com entendimento do domínio.
+
+Aplico em fases:
+
+1. Linguagem e entidades
+2. Invariantes e aggregates
+3. Refinamentos (events, policies, etc.)
+
+Não antecipo complexidade.
 
 ---
 
-## 📌 Nota final
+# 🗂 Fonte da Verdade
+
+Quando DDD for aplicado em um projeto real:
+
+* Código expressa o modelo real
+* Testes validam regras e invariantes
+* ADR registra decisões estruturais
+
+Se a implementação divergir deste documento:
+
+1. Atualizar documento
+2. Ou registrar novo ADR justificando mudança
+
+---
+
+# 📚 Relação com outros documentos
+
+* `architecture/clean-architecture.md`
+* `architecture/decisions.md`
+* `django/mvt.md`
+
+---
+
+# 📌 Nota final
 
 Se o domínio não está claro,
-nenhuma arquitetura vai salvar o sistema.
+nem Clean Architecture nem framework vão salvar o sistema.

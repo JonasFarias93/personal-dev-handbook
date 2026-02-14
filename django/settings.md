@@ -1,214 +1,240 @@
 # Django — Settings (Uso Prático)
 
-Este documento define **como eu organizo e configuro settings em projetos Django**.
-
-O objetivo é manter:
-- previsibilidade entre ambientes (dev/staging/prod)
-- segurança (segredos fora do código)
-- clareza (settings fáceis de ler e manter)
-- mudanças controladas ao longo do tempo
+Este documento define **como organizo e configuro settings em projetos Django**,
+alinhado com Clean Architecture, separação por ambientes e governança formal.
 
 Settings são parte da arquitetura.
-E precisam de governança.
+Mudanças relevantes podem exigir ADR.
 
 ---
 
-## 🎯 Objetivo dos settings
+# 🎯 Objetivo dos settings
 
 Settings devem:
 
-- ser fáceis de entender e modificar
-- deixar explícito o que muda por ambiente
-- evitar segredos no repositório
-- reduzir “efeito dominó” quando o projeto cresce
+* Ser previsíveis entre ambientes (dev / test / prod)
+* Tornar explícito o que muda por ambiente
+* Manter segredos fora do repositório
+* Reduzir risco operacional
+* Evitar comportamento implícito
 
 ---
 
-## 🧠 Princípios que eu sigo
+# 🧠 Princípios que sigo
 
-- **segredo nunca entra no Git**
-- **ambientes são explícitos** (dev / prod)
-- **configuração vem do ambiente** (env vars)
-- **defaults seguros** (principalmente em produção)
-- **settings pequenos e organizados**
+* Segredo nunca entra no Git
+* Ambientes são explícitos
+* Configuração vem do ambiente (env vars)
+* Defaults seguros (especialmente em produção)
+* Arquivos pequenos e organizados
+* Mudanças estruturais relevantes geram ADR
 
 ---
 
-## 🗂️ Organização recomendada
+# 🗂 Organização recomendada
 
-Prefiro separar settings por ambiente.
+Uso separação por ambiente.
 
-Exemplo:
-
+```
 config/
 └── settings/
-├── init.py
-├── base.py
-├── dev.py
-├── prod.py
-└── test.py
+    ├── __init__.py
+    ├── base.py
+    ├── dev.py
+    ├── prod.py
+    └── test.py
+```
 
+## base.py
 
-### `base.py`
 Contém o comum entre ambientes:
-- INSTALLED_APPS base
-- MIDDLEWARE base
-- templates/base config
-- settings gerais (timezone, language, static/media)
-- logging base
 
-### `dev.py`
-Dev local:
-- DEBUG=True
-- console email backend
-- ferramentas de debug (se usadas)
-- DB local
-- permissões mais flexíveis (com consciência)
+* INSTALLED_APPS base
+* MIDDLEWARE base
+* Templates
+* Timezone / Language
+* Static / Media base
+* Logging base
 
-### `prod.py`
-Produção:
-- DEBUG=False
-- ALLOWED_HOSTS obrigatório
-- cookies/headers seguros
-- DB e serviços externos via env
-- logging mais robusto
-
-### `test.py`
-Testes:
-- DB/engine adequado para testes
-- performance e isolamento
-- settings que deixam testes previsíveis
+Não contém segredo.
 
 ---
 
-## 🔐 Variáveis de ambiente (env)
+## dev.py
+
+Ambiente local:
+
+* DEBUG = True
+* Email backend de console
+* DB local
+* Ferramentas de debug (quando necessário)
+
+Facilita desenvolvimento, mas com consciência de risco.
+
+---
+
+## prod.py
+
+Produção:
+
+* DEBUG = False
+* ALLOWED_HOSTS obrigatório
+* SECRET_KEY via env
+* DB via env
+* Cookies seguros
+* Headers avaliados
+* Logging robusto
+
+Produção deve ser explícita e segura.
+
+---
+
+## test.py
+
+Testes priorizam:
+
+* Isolamento
+* Previsibilidade
+* Velocidade
+
+Decisões comuns:
+
+* Email backend em memória
+* Cache simplificado
+* Remoção de integrações externas
+
+---
+
+# 🔐 Variáveis de ambiente (Source of Configuration)
 
 Tudo que for:
-- segredo
-- dependente de ambiente
-- integração externa
-deve vir via env.
+
+* Segredo
+* Dependente de ambiente
+* Integração externa
+
+Deve vir via env.
 
 Exemplos comuns:
-- SECRET_KEY
-- DATABASE_URL
-- DEBUG
-- ALLOWED_HOSTS
-- CSRF_TRUSTED_ORIGINS
-- EMAIL_* / SMTP
-- SENTRY_DSN
+
+* SECRET_KEY
+* DATABASE_URL
+* DEBUG
+* ALLOWED_HOSTS
+* CSRF_TRUSTED_ORIGINS
+* EMAIL_*
+* SENTRY_DSN
 
 Regra prática:
+
 > Se eu não posso publicar isso, vai para env.
 
 ---
 
-## 🧭 Como escolho o settings ativo
+# 🧭 Seleção do settings ativo
 
-Eu escolho via variável de ambiente.
+Seleciono via variável de ambiente:
 
-Exemplo conceitual:
-- `DJANGO_SETTINGS_MODULE=config.settings.dev`
-- `DJANGO_SETTINGS_MODULE=config.settings.prod`
+```
+DJANGO_SETTINGS_MODULE=config.settings.dev
+DJANGO_SETTINGS_MODULE=config.settings.prod
+```
 
-Isso evita:
-- if/else gigante dentro do settings
-- comportamentos surpresa
+Evito:
 
----
-
-## ✅ Regras mínimas de segurança (produção)
-
-Em produção, garantir:
-
-- `DEBUG = False`
-- `SECRET_KEY` via env
-- `ALLOWED_HOSTS` definido
-- `CSRF_TRUSTED_ORIGINS` se necessário
-- `SECURE_SSL_REDIRECT` (se aplicável)
-- `SESSION_COOKIE_SECURE = True` (se aplicável)
-- `CSRF_COOKIE_SECURE = True` (se aplicável)
-- headers de segurança avaliados
-
-> Não confiar em defaults do Django sem revisar.
+* if/else gigante dentro de um único arquivo
+* lógica complexa condicional baseada em DEBUG
 
 ---
 
-## 📦 Static / Media (regra prática)
+# ✅ Regras mínimas de segurança (produção)
+
+Em produção, revisar explicitamente:
+
+* DEBUG = False
+* SECRET_KEY via env
+* ALLOWED_HOSTS definido
+* CSRF_TRUSTED_ORIGINS (se necessário)
+* SESSION_COOKIE_SECURE
+* CSRF_COOKIE_SECURE
+* SECURE_SSL_REDIRECT (se aplicável)
+* Headers de segurança
+
+Não confiar cegamente nos defaults do Django.
+
+---
+
+# 📦 Static / Media
 
 Definir claramente:
 
-- `STATIC_URL`, `STATIC_ROOT`
-- `MEDIA_URL`, `MEDIA_ROOT`
+* STATIC_URL
+* STATIC_ROOT
+* MEDIA_URL
+* MEDIA_ROOT
 
-E separar responsabilidades:
-- em dev pode servir local
-- em prod deve ser servido por infra (ex: Nginx, CDN, storage)
+Em produção:
 
----
-
-## 🧾 Logging (mínimo viável)
-
-Regras práticas:
-- dev: logging legível no console
-- prod: logs estruturados (ou pelo menos consistentes)
-- erros importantes devem ser capturáveis (Sentry etc. se usado)
-
-Evitar:
-- logs silenciosos em produção
-- log “barulhento” sem utilidade
+* Django não deve servir arquivos estáticos diretamente
+* Infra (Nginx/CDN/Storage) deve assumir essa responsabilidade
 
 ---
 
-## 🧪 Settings de testes (previsibilidade)
+# 🧾 Logging (mínimo viável)
 
-Em testes, priorizo:
-
-- isolamento (um teste não pode depender de outro)
-- previsibilidade (mesmos resultados sempre)
-- velocidade (quando possível)
-
-Exemplos de decisões comuns:
-- email backend em memória
-- cache simplificado
-- configurações que removem chamadas externas
-
----
-
-## 🚫 Anti-padrões comuns
+* Dev → logging legível no console
+* Prod → logs consistentes e rastreáveis
+* Erros críticos devem ser capturáveis (ex: Sentry)
 
 Evitar:
 
-- settings únicos gigantes (`settings.py` com 500 linhas)
-- segredos no repositório
-- lógica complexa dentro de settings
-- “consertar prod” adicionando gambiarras no settings
-- depender de comportamento implícito por ambiente
+* Logs silenciosos em produção
+* Log excessivo sem utilidade
 
 ---
 
-## 🔄 Mudanças em settings devem ser decisão
+# 🚫 Anti-padrões comuns
 
-Mudança de settings em produção normalmente implica:
-- impacto de segurança
-- impacto operacional
-- risco de indisponibilidade
+Evitar:
 
-Quando uma mudança for importante,
-registrar decisão em `architecture/decisions.md`.
-
----
-
-## 📚 Relação com outros documentos
-
-- `django/project-structure.md`
-- `architecture/decisions.md`
-- `docker/compose.md` (quando settings dependem de serviços)
-- `python/pyproject.md` (deps relacionadas)
+* Um único settings.py gigantesco
+* Segredos no repositório
+* Lógica complexa dentro de settings
+* "Corrigir prod" com gambiarra em settings
+* Comportamento implícito por ambiente
 
 ---
 
-## 📌 Nota final
+# 🗂 Fonte da Verdade
 
-Settings bons não são os “perfeitos”.
-São os que evitam surpresa e reduzem risco.
+* Código é fonte primária
+* Ambiente define configuração
+* Testes garantem previsibilidade
+* ADR registra decisões estruturais relevantes
+
+Documentação de settings deve conter:
+
+* Última revisão
+* Fonte (arquivos reais, env necessários, ADR relacionada)
+
+Se houver divergência entre documento e código:
+
+1. Código prevalece
+2. Documento deve ser atualizado
+3. Se estrutural, registrar novo ADR
+
+---
+
+# 📚 Relação com outros documentos
+
+* `django/project-structure.md`
+* `architecture/decisions.md`
+* `docker/compose.md`
+* `python/pyproject.md`
+
+---
+
+# 📌 Nota final
+
+Settings bons não são os "perfeitos".
+São os que evitam surpresa, reduzem risco e tornam ambientes previsíveis.

@@ -1,208 +1,220 @@
 # Clean Architecture — Uso Prático
 
-Este documento descreve **como eu aplico Clean Architecture na prática**.
+Este documento descreve **como aplico Clean Architecture na prática**.
 
-O objetivo não é seguir o modelo “puro” de livros,
-mas usar seus princípios para construir sistemas:
-- mais fáceis de entender
-- mais fáceis de testar
-- mais fáceis de evoluir
+Não sigo o modelo “acadêmico puro”.
+Uso seus princípios para construir sistemas:
+
+* mais fáceis de entender
+* mais fáceis de testar
+* mais fáceis de evoluir
+* menos dependentes de frameworks
+
+Arquitetura é ferramenta. Não dogma.
 
 ---
 
-## 🎯 Por que Clean Architecture
+# 🎯 Objetivo real ao aplicar Clean Architecture
 
-Adoto Clean Architecture para:
+Adoto Clean Architecture quando preciso:
 
-- proteger regras de negócio
-- reduzir acoplamento com frameworks
-- facilitar testes
-- permitir evolução sem reescrever tudo
-- manter decisões explícitas
+* Proteger regras de negócio
+* Reduzir acoplamento estrutural
+* Tornar testes simples
+* Permitir evolução sem reescrita massiva
+* Tornar decisões explícitas
 
 Não é sobre pastas.
 É sobre **direção de dependência**.
 
 ---
 
-## 🧠 Princípios fundamentais
+# 🧠 Princípio Fundamental
 
-### Dependências apontam para dentro
+> Dependências sempre apontam para dentro.
 
-Código mais externo pode depender do interno.  
-O interno **nunca** depende do externo.
-
-- domínio não depende de framework
-- regras de negócio não conhecem banco, web ou UI
-- detalhes mudam, regras não
+Código mais externo pode depender do interno.
+O interno **nunca depende do externo**.
 
 ---
 
-### Regras de negócio no centro
+# 🏛 Camadas (modelo prático que aplico)
 
-O domínio:
-- contém regras
-- contém invariantes
-- contém linguagem do problema
+## 1️⃣ Domain
 
-Ele não sabe:
-- como dados são persistidos
-- como requests chegam
-- como respostas são entregues
+### Responsabilidade
 
----
+* Regras de negócio
+* Entidades
+* Value Objects
+* Invariantes
+* Linguagem do domínio
 
-### Frameworks são detalhes
+### Não pode
 
-Frameworks (Django, FastAPI, ORM, etc):
-- facilitam implementação
-- **não definem o domínio**
+* Importar ORM
+* Importar framework
+* Conhecer banco de dados
+* Conhecer camada web
 
-Se o framework mudar, o domínio deve sobreviver.
-
----
-
-## 🏗️ Camadas (visão prática)
-
-### Domain
-
-**Responsabilidade**
-- regras de negócio
-- entidades
-- value objects
-- validações
-- invariantes
-
-**Não pode**
-- importar ORM
-- importar web
-- acessar banco
-- conhecer framework
+O domínio deve sobreviver se o framework for trocado.
 
 ---
 
-### Application (ou Use Cases)
+## 2️⃣ Application (Use Cases)
 
-**Responsabilidade**
-- orquestrar regras
-- coordenar casos de uso
-- definir fluxo da aplicação
+### Responsabilidade
 
-**Pode**
-- chamar domínio
-- depender de interfaces (ports)
+* Orquestrar fluxo
+* Executar casos de uso
+* Coordenar domínio
+* Definir contratos (interfaces/ports)
 
-**Não pode**
-- acessar detalhes concretos
-- conter lógica de framework
+### Pode
 
----
+* Chamar domínio
+* Depender de interfaces
 
-### Infrastructure
+### Não pode
 
-**Responsabilidade**
-- implementar detalhes técnicos
-- persistência
-- integrações
-- serviços externos
-
-**Depende de**
-- application
-- domain (interfaces)
+* Conter regra de framework
+* Conhecer detalhes técnicos concretos
 
 ---
 
-### Interface / Web
+## 3️⃣ Infrastructure
 
-**Responsabilidade**
-- entrada e saída do sistema
-- tradução de dados (DTOs, serializers)
-- validação superficial de input
+### Responsabilidade
 
-**Não deve**
-- conter regra de negócio
-- decidir fluxo complexo
+* Implementar detalhes técnicos
+* Persistência
+* Integrações externas
+* Serviços de terceiros
+
+Depende de:
+
+* Domain (interfaces)
+* Application
 
 ---
 
-## 🔁 Fluxo típico
+## 4️⃣ Interface / Web (Adapter)
+
+### Responsabilidade
+
+* Entrada e saída do sistema
+* Tradução de dados (DTOs, serializers, forms)
+* Validação superficial de input
+
+### Não deve
+
+* Conter regra de negócio
+* Decidir fluxo complexo
+
+Framework é detalhe.
+
+---
+
+# 🔁 Fluxo típico
 
 1. Request entra pela camada Web
-2. Web traduz input → chama Application
+2. Web traduz input e chama Application
 3. Application executa caso de uso
 4. Domain valida regras e invariantes
-5. Infrastructure fornece dados / persiste
-6. Resultado volta em sentido inverso
+5. Infrastructure persiste ou integra
+6. Resultado retorna no sentido inverso
 
-> O domínio nunca “sobe” camadas.
+O domínio nunca “sobe” camadas.
 
 ---
 
-## 🧪 Testabilidade
+# 🧪 Testabilidade como métrica
 
-Essa arquitetura permite:
+Arquitetura correta facilita testes:
 
-- testar domínio sem banco
-- testar casos de uso sem framework
-- testar infraestrutura isoladamente
+* Domínio testado sem banco
+* Use cases testados sem framework
+* Infra testada isoladamente
 
 Regra prática:
+
 > Se é difícil testar, provavelmente está acoplado demais.
 
 ---
 
-## ⚖️ Trade-offs aceitos
+# ⚖️ Quando aplicar (e quando não aplicar)
 
-Adotar Clean Architecture implica:
+Clean Architecture tem custo:
 
-- mais arquivos
-- mais camadas
-- mais código “cerimonial”
+* Mais arquivos
+* Mais abstrações
+* Mais código estrutural
 
-Esses custos são aceitos quando:
-- o domínio é relevante
-- o sistema tende a crescer
-- regras de negócio importam
+Aplico quando:
 
-Em projetos muito simples, **não aplico tudo**.
+* O domínio é relevante
+* O sistema tende a crescer
+* Regras de negócio são centrais
 
----
+Não aplico completamente quando:
 
-## 🚫 Anti-padrões comuns
+* Projeto é simples
+* Domínio é trivial
+* Complexidade não se justifica
 
-Evitar:
-
-- domínio importando ORM
-- services “faz-tudo”
-- lógica de negócio em views
-- regras escondidas em signals/hooks
-- “camadas” que só repassam dados
+Arquitetura deve ser proporcional ao problema.
 
 ---
 
-## 🔄 Adaptação consciente
+# 🚫 Anti-padrões que evito
+
+* Domínio importando ORM
+* Lógica de negócio em views
+* Services “faz-tudo” sem responsabilidade clara
+* Regras escondidas em signals/hooks
+* Camadas que só repassam dados sem agregar valor
+
+---
+
+# 🧩 Adaptação consciente
 
 Clean Architecture **não é binária**.
 
-Eu aplico:
-- o suficiente para proteger o domínio
-- sem criar abstrações prematuras
-- adaptando ao tamanho do projeto
+Aplico:
+
+* O suficiente para proteger o domínio
+* Sem criar abstrações prematuras
+* Adaptando ao tamanho do projeto
 
 Arquitetura serve o sistema.
 Não o contrário.
 
 ---
 
-## 📚 Relação com outros documentos
+# 🗂 Fonte da Verdade
 
-- `architecture/ddd.md` — modelagem do domínio
-- `architecture/decisions.md` — decisões arquiteturais
-- `django/mvt.md` — adaptação ao Django
+Quando este modelo for aplicado em um projeto real:
+
+* Código é a fonte primária
+* Testes validam comportamento
+* ADR registra decisão estrutural
+
+Se a implementação divergir do documento:
+
+1. Atualizar documento
+2. Ou registrar novo ADR explicando mudança
 
 ---
 
-## 📌 Nota final
+# 📚 Relação com outros documentos
+
+* `architecture/ddd.md`
+* `architecture/decisions.md`
+* `django/mvt.md`
+
+---
+
+# 📌 Nota final
 
 Se a arquitetura não ajuda a entender o sistema,
-ela está falhando.
+elas está falhando.

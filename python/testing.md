@@ -1,241 +1,274 @@
 # Python — Testing (Uso Prático)
 
-Este documento descreve **como eu abordo testes em projetos Python**.
+Este documento descreve **como abordo testes em projetos Python**,
+alinhado com Clean Architecture, DDD e governança de qualidade.
 
-O objetivo não é “ter 100% de cobertura”, mas:
-- garantir comportamento correto
-- proteger regras importantes
-- permitir refatoração sem medo
-- detectar erro cedo
-
-Teste é ferramenta de **confiança**, não de vaidade.
+Teste é ferramenta de confiança.
+Não é métrica de vaidade.
 
 ---
 
-## 🎯 Por que testar
+# 🎯 Por que testar
 
 Eu testo para:
 
-- validar regras de negócio
-- evitar regressões
-- documentar comportamento esperado
-- ganhar segurança para refatorar
-- reduzir bugs em produção
+* Validar regras de negócio
+* Evitar regressões
+* Documentar comportamento esperado
+* Permitir refatoração segura
+* Detectar erro cedo
 
 Se um código é difícil de testar,
-geralmente ele também é difícil de manter.
+provavelmente é difícil de manter.
 
 ---
 
-## 🧠 Princípios que eu sigo
+# 🧠 Princípios que sigo
 
-- testes focam **comportamento**, não implementação
-- testes devem ser legíveis
-- falha de teste deve explicar o problema
-- testes rápidos > testes perfeitos
-- regra de negócio tem prioridade máxima
+* Testes focam comportamento, não implementação
+* Testes devem ser legíveis
+* Falha deve explicar o problema
+* Testes rápidos > testes excessivamente complexos
+* Regras de negócio têm prioridade máxima
+* Arquitetura orienta a estratégia de teste
 
 ---
 
-## 🧰 Ferramenta base
+# 🧰 Ferramenta base
 
-Uso **pytest** como base para testes Python.
+Uso **pytest** como base padrão.
 
 Motivos:
-- sintaxe simples
-- fixtures poderosas
-- ótimo ecossistema
-- fácil integração com Django
+
+* Sintaxe simples
+* Fixtures poderosas
+* Ecossistema maduro
+* Integração natural com Django
+
+Configuração centralizada no `pyproject.toml`.
 
 ---
 
-## 🗂️ Estrutura de testes
+# 🗂 Estrutura de testes
 
-Estrutura comum:
+A estrutura reflete a arquitetura do projeto:
 
+```
 tests/
 ├── domain/
 ├── application/
 ├── web/
 └── infrastructure/
+```
 
-
-A estrutura de testes reflete **a arquitetura do projeto**,
-não o framework.
+Testes seguem as camadas.
+Não seguem o framework.
 
 ---
 
-## 🧪 Tipos de teste (como eu classifico)
+# 🧪 Tipos de teste
 
-### Testes unitários
+## 1️⃣ Testes unitários (Domínio)
 
 Foco:
-- regras de negócio
-- entidades
-- value objects
-- validações
+
+* Entidades
+* Value Objects
+* Invariantes
+* Regras de negócio
 
 Características:
-- rápidos
-- sem banco
-- sem framework
-- isolados
+
+* Rápidos
+* Sem banco
+* Sem framework
+* Isolados
 
 > Prioridade máxima.
 
 ---
 
-### Testes de aplicação (casos de uso)
+## 2️⃣ Testes de aplicação (Use Cases)
 
 Foco:
-- fluxo de execução
-- orquestração
-- chamadas corretas ao domínio
+
+* Fluxo de execução
+* Orquestração
+* Chamadas corretas ao domínio
 
 Características:
-- podem usar mocks
-- validam integração entre camadas internas
-- não dependem de HTTP
+
+* Podem usar mocks controlados
+* Não dependem de HTTP
 
 ---
 
-### Testes de integração
+## 3️⃣ Testes de integração (Infraestrutura)
 
 Foco:
-- infraestrutura real
-- banco de dados
-- ORM
-- integrações externas (quando necessário)
+
+* ORM
+* Banco de dados
+* Implementações concretas
 
 Características:
-- mais lentos
-- mais frágeis
-- usados com parcimônia
+
+* Mais lentos
+* Usados com parcimônia
+* Validam comportamento real
 
 ---
 
-### Testes de web / API
+## 4️⃣ Testes de Web / API
 
 Foco:
-- request/response
-- status codes
-- payloads
-- permissões
 
-Características:
-- validam borda do sistema
-- não testam regra de negócio profunda
-- normalmente usam client de teste
+* Request/Response
+* Status codes
+* Permissões
+* Serialização
 
----
-
-## 🧠 Regra de ouro
-
-> **Se a regra é do negócio, ela deve ser testada sem Django, banco ou HTTP.**
-
-Se um teste de regra exige:
-- RequestFactory
-- Client
-- banco de dados
-
-provavelmente a regra está no lugar errado.
+Não testam regra profunda.
+Apenas a borda.
 
 ---
 
-## 🧪 Fixtures (uso consciente)
+# 🧠 Regra de ouro
+
+> Se a regra é do negócio, ela deve ser testada sem Django, banco ou HTTP.
+
+Se o teste exige `Client`, banco ou RequestFactory para validar regra pura,
+o design está incorreto.
+
+---
+
+# 🧩 Fixtures (uso consciente)
 
 Uso fixtures para:
-- criar dados reutilizáveis
-- montar contexto de teste
-- reduzir duplicação
+
+* Criar dados reutilizáveis
+* Montar contexto
+* Reduzir duplicação
 
 Evito:
-- fixtures mágicas
-- fixtures gigantes
-- fixtures que escondem comportamento
 
-Regra prática:
-> fixture deve preparar cenário, não fazer lógica.
+* Fixtures mágicas
+* Fixtures gigantes
+* Lógica escondida em fixture
+
+Fixture prepara cenário.
+Não executa regra.
 
 ---
 
-## 🔀 Mocks e stubs
+# 🔀 Mocks e Stubs
 
 Uso mocks quando:
-- quero isolar dependência externa
-- testar apenas o comportamento do código atual
+
+* Quero isolar dependência externa
+* Testo comportamento da unidade atual
 
 Evito:
-- mockar tudo
-- mockar domínio
-- mockar para “forçar” teste passar
 
-Se preciso de muitos mocks,
-talvez o design esteja ruim.
+* Mockar domínio
+* Mockar tudo indiscriminadamente
+* Mockar para "forçar" teste passar
+
+Muitos mocks geralmente indicam design frágil.
 
 ---
 
-## 🧪 Nomes e organização dos testes
+# 🧪 Padrão de escrita
 
 Boas práticas:
-- nomes claros
-- estrutura `dado_quando_entao`
-- um comportamento por teste
+
+* Um comportamento por teste
+* Nome claro e explícito
+* Estrutura dado → quando → então
 
 Exemplo:
 
 ```python
 def test_nao_permite_finalizar_chamado_sem_itens():
     ...
+```
+
 Um teste deve responder:
 
-“o que acontece quando X?”
+> O que acontece quando X?
 
-🧪 Testes e Django
+---
+
+# 🧪 Testes e Django
+
 Em projetos Django:
 
-domínio → testes unitários puros
-
-application → testes focados em fluxo
-
-web → django.test.Client
-
-ORM → testes de integração
+* Domínio → testes unitários puros
+* Application → testes de fluxo
+* Web → `django.test.Client`
+* ORM → integração real
 
 Não uso Django para testar regra que não depende dele.
 
-🚫 Anti-padrões comuns
+---
+
+# 🔄 Relação com DoD
+
+Mudança de comportamento só está pronta quando:
+
+* Teste cobre o cenário principal
+* Cenário negativo foi considerado
+* Testes existentes continuam passando
+
+Se a mudança quebra teste inesperadamente,
+verificar se foi regressão ou regra mudou.
+
+---
+
+# 🚫 Anti-padrões
+
 Evitar:
 
-testar getters/setters
+* Testar getters/setters
+* Testar comportamento interno irrelevante
+* Testes gigantes validando tudo
+* Dependência de ordem de execução
+* Ignorar teste quebrado por tempo prolongado
 
-testar framework
+---
 
-testes gigantes que validam tudo
+# 🧠 Checklist rápido
 
-testes que dependem de ordem
+Antes de considerar um teste adequado:
 
-testes frágeis por excesso de mock
+* Estou testando comportamento real?
+* O teste falharia se a regra mudasse?
+* É legível sem contexto adicional?
+* Roda rápido?
+* Mensagem de falha é clara?
 
-ignorar testes quebrados por muito tempo
+---
 
-🧠 Checklist rápido
-Antes de escrever ou revisar um teste:
+# 🗂 Fonte da Verdade
 
- estou testando comportamento?
+* Código implementa comportamento
+* Testes validam comportamento
+* `pyproject.toml` define tooling
+* DoD exige testes quando aplicável
+* ADR registra mudanças estruturais
 
- este teste quebraria se a regra mudasse?
+Se teste e código divergem:
 
- ele é legível sem contexto extra?
+1. Verificar qual representa a regra correta
+2. Ajustar o incorreto
 
- roda rápido?
+---
 
- falha com mensagem clara?
+# 📌 Nota final
 
-📌 Nota final
-Testes bons não impedem bugs.
+Testes não impedem bugs.
 Eles impedem surpresas.
 
 Se testar virou sofrimento,
-o problema raramente é o pytest.
-Geralmente é o design.
+provavelmente o problema é o design,
+não o pytest.

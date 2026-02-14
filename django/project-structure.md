@@ -1,240 +1,265 @@
 # Django — Estrutura de Projeto (Uso Prático)
 
-Este documento descreve **como eu estruturo projetos Django**
-de forma alinhada com Clean Architecture e DDD.
-
-O objetivo é manter:
-- clareza de responsabilidades
-- limites explícitos entre camadas
-- crescimento sustentável do projeto
+Este documento descreve **como estruturo projetos Django**
+alinhados com Clean Architecture, DDD e o modelo de ADR definido neste handbook.
 
 Estrutura não é estética.
-É **governança**.
+É **governança estrutural**.
 
 ---
 
-## 🎯 Objetivo da estrutura
+# 🎯 Objetivo da estrutura
 
-A estrutura do projeto deve:
+A estrutura deve:
 
-- deixar claro onde cada tipo de código vive
-- evitar acoplamento acidental
-- facilitar testes
-- permitir evolução sem reestruturações traumáticas
+* Deixar claro onde cada tipo de código vive
+* Evitar acoplamento acidental
+* Proteger o domínio do framework
+* Facilitar testes por camada
+* Permitir crescimento sem reestruturações traumáticas
 
-Se preciso “procurar” onde colocar algo,
+Se preciso "procurar" onde algo deveria estar,
 a estrutura está fraca.
 
 ---
 
-## 🧠 Princípios que guiam a estrutura
+# 🧠 Princípios estruturais
 
-- domínio separado de framework
-- apps representam **contextos**, não camadas
-- web é borda do sistema
-- infraestrutura é detalhe
-- dependências apontam para dentro
+* Domínio separado de framework
+* Apps representam **contextos de negócio**, não camadas técnicas
+* Web é borda do sistema (adapter)
+* Infraestrutura é detalhe
+* Dependências apontam para dentro
+* Decisões estruturais relevantes geram ADR
 
 ---
 
-## 🏗️ Visão geral da estrutura
+# 🏗️ Estrutura base recomendada
+
+No meu padrão atual, **`web/` é a camada Adapter (Django)**.
+
+Os apps Django vivem dentro de `web/` (ex: `web/chamados`, `web/execucao`).
+
+> Quando eu uso `web/` como raiz, estou explicitando que o framework é borda do sistema.
 
 Exemplo base:
 
+```
 project/
 ├── manage.py
 ├── pyproject.toml
-├── config/ # Configuração do Django (settings, urls, wsgi)
-│ ├── settings/
-│ ├── urls.py
-│ └── asgi.py
+├── config/
+│   ├── settings/
+│   ├── urls.py
+│   └── asgi.py
 │
-├── apps/
-│ ├── chamado/
-│ │ ├── domain/
-│ │ ├── application/
-│ │ ├── infrastructure/
-│ │ └── web/
-│ │
-│ ├── cadastro/
-│ └── execucao/
+├── web/                    # Adapter Django (borda do sistema)
+│   ├── chamados/
+│   │   ├── domain/
+│   │   ├── application/
+│   │   ├── infrastructure/
+│   │   └── web/
+│   │
+│   ├── execucao/
+│   ├── iam/
+│   └── redes/
 │
-├── shared/ # Código compartilhado (opcional)
-│ ├── domain/
-│ ├── application/
-│ └── infrastructure/
+├── shared/ (opcional)
+│   ├── domain/
+│   ├── application/
+│   └── infrastructure/
 │
 ├── tests/
-│
 └── docker/
+```
 
+Observações:
+
+* `web/<contexto>/web/` pode ser renomeado quando fizer sentido (ex: `views/`, `urls/`, `templates/`).
+* O importante é manter **a separação de camadas dentro do contexto**.
 
 ---
 
-## 🧩 Organização por app (contexto)
+# 🧩 Organização por app (Contexto)
 
-Cada app representa um **contexto de negócio**,
-não uma camada técnica.
+Cada app representa um **bounded context**.
 
-Exemplo:
-- `chamado`
-- `cadastro`
-- `execucao`
+Exemplos:
+
+* `chamado`
+* `cadastro`
+* `execucao`
 
 Evito:
-- `utils`
-- `core` genérico
-- apps técnicos sem domínio claro
+
+* `utils` genérico
+* `core` sem significado de negócio
+* Apps puramente técnicos sem domínio claro
 
 ---
 
-## 🧱 Estrutura interna de um app
+# 🧱 Estrutura interna de um app
 
-### `domain/`
+## 1️⃣ domain/
 
 Contém:
-- entidades
-- value objects
-- aggregates
-- regras de negócio
-- interfaces de repositório
+
+* Entidades
+* Value Objects
+* Aggregates
+* Regras de negócio
+* Interfaces de repositório
 
 Não contém:
-- ORM
-- Django
-- HTTP
-- detalhes técnicos
+
+* ORM
+* Django
+* HTTP
+* Framework
+
+Domínio deve ser puro.
 
 ---
 
-### `application/`
+## 2️⃣ application/
 
 Contém:
-- casos de uso
-- serviços de aplicação
-- orquestração de fluxo
+
+* Casos de uso
+* Orquestração de fluxo
+* Serviços de aplicação
 
 Depende de:
-- domain (interfaces)
+
+* domain
 
 Não contém:
-- lógica de framework
-- persistência concreta
+
+* Implementações técnicas
+* Detalhes de framework
 
 ---
 
-### `infrastructure/`
+## 3️⃣ infrastructure/
 
 Contém:
-- models Django (ORM)
-- implementações de repositórios
-- integrações externas
-- detalhes técnicos
+
+* Models Django (ORM)
+* Implementações concretas de repositório
+* Integrações externas
+* Serviços técnicos
 
 Depende de:
-- application
-- domain
+
+* application
+* domain
 
 ---
 
-### `web/`
+## 4️⃣ web/
 
 Contém:
-- views
-- serializers/forms
-- urls
-- controllers HTTP
+
+* Views
+* Forms / Serializers
+* URLs
+* Templates
 
 Responsabilidade:
-- entrada e saída do sistema
+
+* Adaptar HTTP para Application
+* Adaptar resposta para cliente
 
 Não contém:
-- regra de negócio
-- decisões de domínio
+
+* Regra de negócio
+* Decisões estruturais
 
 ---
 
-## 🔁 Relação com Django (MVT)
+# 🔁 Mapeamento mental com MVT
 
-Mapeamento mental:
+* Model (Django) → infrastructure
+* View → web
+* Template → web/templates
+* Domínio real → domain (fora do ORM)
 
-- **Model (Django)** → `infrastructure`
-- **View** → `web`
-- **Template** → `web/templates`
-- **Domínio real** → `domain` (fora do ORM)
-
-Django é adaptado à arquitetura,
-não o contrário.
+Django é adaptado à arquitetura.
+Não o contrário.
 
 ---
 
-## 🧪 Testes e estrutura
+# 🧪 Estratégia de testes alinhada à estrutura
 
-Estratégia comum:
+* domain → testes unitários puros
+* application → testes de fluxo
+* web → testes request/response
+* infrastructure → testes de integração
 
-- domínio → testes unitários
-- application → testes de fluxo
-- web → testes de request/response
-- infraestrutura → testes de integração
-
-Estrutura ajuda a testar **no nível certo**.
+Se um teste precisa atravessar todas as camadas para validar regra simples,
+a separação está incorreta.
 
 ---
 
-## ⚖️ Trade-offs aceitos
+# ⚖️ Trade-offs conscientes
 
 Essa estrutura implica:
 
-- mais pastas
-- mais arquivos
-- onboarding inicial maior
+* Mais pastas
+* Mais arquivos
+* Maior disciplina
 
-Aceito isso quando:
-- domínio é relevante
-- projeto vai crescer
-- regras importam
+Aceito quando:
 
-Para projetos simples,
-simplifico conscientemente.
+* O domínio é relevante
+* O sistema tende a crescer
+* Longevidade importa
 
----
-
-## 🚫 Anti-padrões comuns
-
-Evitar:
-
-- lógica de negócio em models Django
-- apps gigantes sem fronteira
-- `services.py` genérico
-- domínio misturado com ORM
-- infra importando web
+Em projetos simples, simplifico conscientemente.
 
 ---
 
-## 🔄 Adaptação consciente
+# 🚫 Anti-padrões que evito
 
-Nem todo projeto precisa dessa estrutura completa.
-
-Eu adapto:
-- MVP → estrutura reduzida
-- sistema crítico → separação completa
-
-A regra é:
-> estrutura serve o domínio, não o ego arquitetural.
+* Lógica de negócio em models Django
+* Apps gigantes sem fronteira clara
+* `services.py` genérico acumulador
+* Domínio misturado com ORM
+* Infra importando web
 
 ---
 
-## 📚 Relação com outros documentos
+# 🗂 Fonte da Verdade
 
-- `django/mvt.md`
-- `architecture/clean-architecture.md`
-- `architecture/ddd.md`
-- `architecture/decisions.md`
+Em projetos reais:
+
+* Código é fonte primária
+* Testes validam comportamento
+* ADR registra decisões estruturais
+
+Documentação estrutural deve conter:
+
+**Última revisão**
+**Fonte (código, testes, ADRs relacionadas)**
+
+Se houver divergência:
+
+1. Código prevalece
+2. Documento deve ser atualizado
+3. Se estrutural, criar novo ADR
 
 ---
 
-## 📌 Nota final
+# 📚 Relação com outros documentos
 
-Se a estrutura não ajuda a decidir
-onde colocar código,
-ela não está cumprindo seu papel.
+* `django/mvt.md`
+* `architecture/clean-architecture.md`
+* `architecture/ddd.md`
+* `architecture/decisions.md`
+
+---
+
+# 📌 Nota final
+
+Se a estrutura não ajuda a decidir onde colocar código,
+elas não está cumprindo seu papel.

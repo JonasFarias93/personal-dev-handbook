@@ -1,124 +1,252 @@
-# <Nome do Projeto>
+# Python — uv (Uso Prático e Decisão Consciente)
 
-Breve descrição do projeto em **uma ou duas frases claras**.  
-O que ele faz e para quem ele existe.
+Este documento descreve **como e por que utilizo `uv`**
+como ferramenta padrão para gerenciamento de ambiente e dependências Python.
 
----
-
-## 🎯 Objetivo
-
-Explique **o problema que o projeto resolve** e **por que ele existe**.
-
-- Que dor ele ataca?
-- Em que contexto ele é usado?
-- O que não é objetivo deste projeto (opcional, mas útil)
+`uv` não é moda.
+É decisão de previsibilidade e redução de fricção.
 
 ---
 
-## 🧠 Visão geral
+# 🎯 Problema que o uv resolve
 
-Resumo rápido de como o projeto funciona, em alto nível.
+Sem uma ferramenta oficial, é comum ter:
 
-- principais responsabilidades
-- principais fluxos
-- limites do escopo
+* Múltiplas formas de instalar dependências
+* Ambientes inconsistentes
+* Comandos diferentes por projeto
+* Setup lento e sujeito a erro
+* Dependência excessiva de documentação para rodar o projeto
 
-Evite detalhes técnicos aqui. Isso é **orientação mental**, não documentação profunda.
+`uv` resolve isso ao:
 
----
-
-## 🏗️ Arquitetura
-
-Descreva as **decisões arquiteturais principais**.
-
-- estilo adotado (ex: MVT, Clean Architecture, DDD, etc.)
-- separação de responsabilidades
-- dependências importantes
-
-> Decisões detalhadas estão documentadas em `architecture/`.
+* Centralizar ambiente + dependências
+* Usar `pyproject.toml` como fonte de verdade
+* Padronizar comandos
 
 ---
 
-## 🧱 Estrutura do projeto
+# 🧠 Princípio central
 
-Visão geral da estrutura de pastas (simplificada):
+> Uma forma oficial de instalar, rodar e testar o projeto.
 
-<projeto>/
-├── src/
-│ ├── domain/
-│ ├── application/
-│ ├── infrastructure/
-│ └── web/
-├── tests/
-├── docker/
-└── README.md
-
-
-Explique **o papel de cada camada**, não cada arquivo.
+Se existem várias formas "válidas" de rodar o projeto,
+nenhuma é realmente confiável.
 
 ---
 
-## ⚙️ Setup e execução
+# 🧩 Papel do uv no meu fluxo
 
-### Requisitos
-- linguagem / runtime
-- versões mínimas
-- ferramentas necessárias
+O `uv` atua como:
 
-### Rodando localmente
-Passo a passo mínimo para rodar o projeto.
+* Gerenciador de dependências
+* Criador de ambiente virtual
+* Executor de comandos
+* Interface única para tooling Python
 
-exemplo
-make setup
-make run
+Ele substitui:
 
+* `pip` manual
+* `pip-tools`
+* Criação manual de `venv`
+* Scripts frágeis de setup
 
----
+Ele não substitui:
 
-## 🧪 Testes
-
-Como rodar testes e que tipo de teste existem.
-
-exemplo
-pytest
-
+* `pyproject.toml`
+* Docker
+* CI
+* Arquitetura do projeto
 
 ---
 
-## 📦 Deploy / Entrega (se aplicável)
+# 🐍 Relação com venv
 
-Resumo do processo de entrega:
+`uv` usa `venv` por baixo.
 
-- ambiente(s)
-- ferramentas usadas
-- limitações conhecidas
+Isso significa:
 
----
+* Continua compatível com tooling Python
+* Não altera fundamentos do ecossistema
+* Não cria ambiente proprietário
 
-## 🔀 Fluxo de trabalho (Git)
+Regra prática:
 
-Este projeto segue padrões definidos em:
-
-- commits → `git/commits.md`
-- branches → `git/branching.md`
-- releases → `git/release.md`
+> Usar `uv` é usar `venv` de forma automatizada e consistente.
 
 ---
 
-## 📚 Documentação adicional
+# 📦 Relação com `pyproject.toml`
 
-Links úteis dentro do repositório:
+`pyproject.toml` continua sendo a fonte de verdade:
 
-- `architecture/decisions.md` — decisões arquiteturais
-- `architecture/clean-architecture.md`
-- `architecture/ddd.md`
-- outros documentos relevantes
+* Dependências
+* Dependências de desenvolvimento
+* Configuração de ferramentas
+
+`uv`:
+
+* Lê o `pyproject.toml`
+* Instala exatamente o que está definido
+* Respeita grupos de dependência
+
+Nenhuma dependência deve ser instalada “por fora”.
 
 ---
 
-## 📌 Notas finais
+# ⚙️ Fluxo padrão de uso
 
-Qualquer observação importante que **não cabe nas seções acima**:
-- trade-offs aceitos
-- limitações conhecidas
-- próximos passos
+## Instalar ambiente e dependências
+
+```
+uv sync
+```
+
+Isso:
+
+* Cria ambiente virtual se não existir
+* Instala dependências declaradas
+
+---
+
+## Rodar comandos
+
+Sempre uso:
+
+```
+uv run python manage.py runserver
+uv run pytest
+uv run black .
+```
+
+Isso garante:
+
+* Ambiente correto ativo
+* Nenhuma dependência vazada do sistema
+* Comportamento previsível
+
+---
+
+## Adicionar dependência
+
+```
+uv add requests
+```
+
+Dependência de desenvolvimento:
+
+```
+uv add --dev pytest
+```
+
+`pyproject.toml` é atualizado automaticamente.
+
+---
+
+# 🧪 Relação com testes
+
+Testes sempre rodam via:
+
+```
+uv run pytest
+```
+
+Benefícios:
+
+* Evita erro de ambiente
+* Garante dependências corretas
+* Reduz variação entre máquinas
+
+---
+
+# 🐳 Relação com Docker
+
+No meu fluxo:
+
+* `uv` é ferramenta local
+* Docker é ambiente de container
+
+Dockerfile não depende de `uv`.
+
+Regras:
+
+* Ambiente local → `uv`
+* Ambiente container → Dockerfile + Compose
+
+Separação clara evita acoplamento desnecessário.
+
+---
+
+# 🤖 Relação com CI
+
+Em CI posso:
+
+* Usar `uv` para acelerar setup
+* Ou usar `pip` direto, se simplificar pipeline
+
+Decisão depende de:
+
+* Tempo de execução
+* Suporte do runner
+* Simplicidade operacional
+
+Localmente, `uv` é padrão oficial.
+
+---
+
+# 🚫 Quando NÃO usar uv
+
+Evito usar quando:
+
+* Projeto extremamente simples
+* Ambiente já é rigidamente controlado por outra ferramenta
+* Time não aceita dependência adicional
+
+Ferramenta só vale se houver alinhamento consciente.
+
+---
+
+# 🚫 Anti-padrões
+
+Evitar:
+
+* Misturar `pip install` com `uv`
+* Rodar comandos fora do `uv run`
+* Instalar dependência sem atualizar `pyproject.toml`
+* Tratar `uv` como opcional
+* Versionar `.venv`
+
+---
+
+# 🧠 Checklist rápido
+
+Antes de considerar uso correto:
+
+* `pyproject.toml` é fonte de verdade
+* Dependências são adicionadas via `uv add`
+* Comandos rodam via `uv run`
+* Não há `pip install` manual
+* `.venv` está fora do Git
+
+---
+
+# 🗂 Fonte da Verdade
+
+* `pyproject.toml` define dependências
+* `uv` instala exatamente o declarado
+* Ambiente virtual é descartável e recriável
+* Tags representam versão oficial do projeto
+
+Se ambiente divergir do declarado:
+
+1. Recriar com `uv sync`
+2. Revisar dependências no `pyproject.toml`
+
+---
+
+# 📌 Nota final
+
+`uv` reduz decisões repetidas.
+
+Menos escolhas no setup →
+mais energia para resolver o probl

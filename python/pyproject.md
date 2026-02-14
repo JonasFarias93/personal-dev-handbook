@@ -1,57 +1,58 @@
 # Python — pyproject.toml (Uso Prático)
 
-Este documento descreve **como eu uso `pyproject.toml`** para organizar projetos Python.
+Este documento descreve **como utilizo `pyproject.toml`** para organizar projetos Python,
+alinhado com previsibilidade, governança e versionamento consciente.
 
-O objetivo é:
-- padronizar setup de projetos
-- centralizar configurações de tooling
-- reduzir arquivos soltos (`setup.py`, `setup.cfg`, etc.)
-- deixar o projeto previsível e fácil de manter
-
-`pyproject.toml` é a **fonte de verdade** do projeto Python.
+`pyproject.toml` é a fonte de verdade do projeto Python.
 
 ---
 
-## 🎯 Por que usar pyproject.toml
+# 🎯 Por que usar pyproject.toml
 
 Uso `pyproject.toml` porque ele:
 
-- centraliza metadados do projeto
-- define dependências de forma clara
-- concentra configuração de ferramentas (formatador, linter, testes)
-- é o padrão moderno do ecossistema Python
+* Centraliza metadados do projeto
+* Define dependências de forma explícita
+* Concentra configuração de tooling
+* É o padrão moderno do ecossistema Python
 
 Evito misturar:
-- `requirements.txt` + `setup.py` + `setup.cfg`
-quando o projeto já pode nascer com `pyproject.toml`.
+
+* `requirements.txt`
+* `setup.py`
+* `setup.cfg`
+
+quando o projeto pode nascer diretamente com `pyproject.toml`.
 
 ---
 
-## 🧠 Princípios que eu sigo
+# 🧠 Princípios que sigo
 
-- um projeto → um `pyproject.toml`
-- tooling configurado no próprio projeto
-- dependências separadas por contexto (runtime / dev)
-- versões explícitas quando faz sentido
-- simplicidade antes de otimização prematura
+* Um projeto → um `pyproject.toml`
+* Tooling configurado dentro do próprio projeto
+* Dependências separadas por contexto (runtime / dev)
+* Versões explícitas quando estabilidade importa
+* Simplicidade antes de abstração prematura
+* Versão do projeto alinhada com SemVer
 
 ---
 
-## 🧱 Estrutura mínima de um projeto Python
+# 🧱 Estrutura mínima de um projeto Python
 
+```
 project/
 ├── pyproject.toml
 ├── README.md
-├── src/ | apps/
+├── web/ ou src/
 ├── tests/
-└── .venv/ # fora do Git
-
+└── .venv/  # fora do Git
+```
 
 ---
 
-## 📦 Estrutura base do pyproject.toml
+# 📦 Estrutura base do pyproject.toml
 
-Exemplo de estrutura mínima e funcional:
+Exemplo mínimo funcional:
 
 ```toml
 [project]
@@ -65,8 +66,6 @@ dependencies = [
     "django>=5.0",
 ]
 
----
-
 [project.optional-dependencies]
 dev = [
     "pytest",
@@ -75,96 +74,139 @@ dev = [
     "ruff",
     "mypy",
 ]
-🧩 Dependências (regra prática)
-dependencies
-tudo que a aplicação precisa para rodar
+```
 
-usado em produção
+---
 
-deve ser o mínimo necessário
+# 🧩 Dependências (regra prática)
 
-optional-dependencies.dev
-ferramentas de desenvolvimento
+## dependencies
 
-testes, lint, formatação
+* Tudo que a aplicação precisa para rodar
+* Usado em produção
+* Deve ser o mínimo necessário
 
-nunca dependências de runtime
+## optional-dependencies.dev
+
+* Ferramentas de desenvolvimento
+* Testes, lint, formatação
+* Nunca dependências de runtime
 
 Regra mental:
 
-se o código roda sem isso em produção, vai para dev.
+> Se o código roda em produção sem isso, vai para dev.
 
-🧰 Configuração de ferramentas (tooling)
-Centralizo o máximo possível no pyproject.toml.
+---
 
-Black (formatação)
+# 🧰 Configuração de ferramentas (Tooling)
+
+Centralizo o máximo possível no `pyproject.toml`.
+
+## Black
+
+```toml
 [tool.black]
 line-length = 88
 target-version = ["py311"]
-Ruff (lint)
+```
+
+## Ruff
+
+```toml
 [tool.ruff]
 line-length = 88
 select = ["E", "F", "W"]
 ignore = ["E501"]
-Pytest
+```
+
+## Pytest
+
+```toml
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-Mypy (tipagem)
+```
+
+## Mypy
+
+```toml
 [tool.mypy]
 python_version = "3.11"
 ignore_missing_imports = true
 strict = false
-🧪 Relação com testes
-pytest é a base
+```
 
-configuração vive no pyproject.toml
+Evito espalhar configuração em múltiplos arquivos sem necessidade.
 
-evita arquivos espalhados (pytest.ini, setup.cfg, etc.)
+---
 
-Testes são parte do projeto, não acessório.
+# 🧪 Relação com testes
 
-🔄 Versionamento do projeto
-Uso versionamento simples:
+* `pytest` é base padrão
+* Configuração vive no `pyproject.toml`
+* Testes são parte estrutural do projeto
 
-início: 0.x.x
+Se o projeto exige `pytest.ini`, justificar a decisão.
 
-estabilidade inicial: 1.0.0
+---
 
-evoluções seguem SemVer
+# 🔄 Versionamento do projeto
 
-A versão do projeto não precisa mudar a cada commit.
-Ela muda em releases.
+Uso SemVer:
 
-🚫 Anti-padrões comuns
-Evitar:
+* Início → `0.x.x`
+* Marco estável → `1.0.0`
+* Evoluções seguem MAJOR.MINOR.PATCH
 
-requirements.txt gigante sem critério
+A versão do projeto muda em releases,
+não a cada commit.
 
-tooling configurado fora do projeto sem motivo
+Tags devem refletir a versão definida aqui.
 
-dependências duplicadas (pip install manual)
+---
 
-versões totalmente soltas quando estabilidade importa
+# 🚫 Anti-padrões que evito
 
-misturar dependência de dev com runtime
+* `requirements.txt` gigante sem critério
+* Tooling configurado fora do projeto sem motivo
+* Dependência instalada manualmente sem declarar
+* Versões totalmente soltas quando estabilidade importa
+* Misturar dependência de dev com runtime
 
-🧠 Checklist rápido
-Antes de considerar o pyproject.toml ok:
+---
 
- nome e versão fazem sentido
+# 🧠 Checklist rápido
 
- dependências mínimas em dependencies
+Antes de considerar o `pyproject.toml` adequado:
 
- tooling em optional-dependencies.dev
+* Nome e versão fazem sentido
+* Dependências mínimas em `dependencies`
+* Tooling em `optional-dependencies.dev`
+* Configurações centralizadas
+* `.venv` fora do Git
+* Versão alinhada com release atual
 
- configurações centralizadas
+---
 
- .venv fora do Git
+# 🗂 Fonte da Verdade
 
-📌 Nota final
+* `pyproject.toml` define metadados e dependências
+* Ambiente virtual instala exatamente o que está declarado
+* Tags devem refletir a versão definida
+* ADR registra decisões estruturais relevantes
+
+Se houver divergência entre ambiente e `pyproject.toml`:
+
+1. `pyproject.toml` deve ser corrigido
+2. Ambiente deve ser recriado
+
+---
+
+# 📌 Nota final
+
 Se o setup do projeto é confuso,
 o código tende a ficar confuso depois.
 
-pyproject.toml bem feito economiza
-tempo, erro e retrabalho.
+`pyproject.toml` bem estruturado economiza tempo,
+reduz erro
+e fortalece governança técnica.

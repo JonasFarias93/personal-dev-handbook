@@ -1,151 +1,194 @@
 # Branching — Fluxo Pessoal de Branches
 
-Este documento define **como eu organizo branches** em projetos Git.
+Este documento define **como organizo branches em projetos Git**,
+alinhado com versionamento consciente, ADR e histórico sustentável.
 
-O objetivo é manter:
-- trabalho isolado (sem quebrar a linha principal)
-- histórico limpo
-- merge previsível
-- entregas controladas
+Branching é mecanismo de controle de risco.
 
 ---
 
-## 🎯 Objetivo do fluxo de branches
+# 🎯 Objetivo do fluxo de branches
 
-- Evitar commits diretos em branch “estável”
-- Reduzir conflitos e retrabalho
-- Facilitar revisão (mesmo que eu esteja sozinho)
-- Garantir que a branch principal esteja sempre em estado consistente
-
----
-
-## 🧠 Regra fundamental
-
-> **Eu não trabalho direto na `main`.**
-
-A `main` representa o estado mais próximo de “entregável”.
+* Evitar commits diretos em branch estável
+* Isolar trabalho em progresso
+* Reduzir conflitos e retrabalho
+* Facilitar revisão (mesmo trabalhando sozinho)
+* Garantir que a linha principal esteja sempre consistente
 
 ---
 
-## 🌿 Branches principais
+# 🧠 Regra fundamental
 
-### `main`
-**Função**
-- Estado entregável / referência estável
-- Onde vivem tags e releases (quando aplicável)
+> Eu não trabalho direto na `main`.
 
-**Regras**
-- Sem commits diretos
-- Só recebe merge vindo de branch de integração (ex: `develop`) ou release
+`main` representa o estado mais próximo de entregável.
 
 ---
 
-### `develop` (integração)
-**Função**
-- Integração do trabalho do dia a dia
-- Base para features e correções
+# 🌿 Branches principais
 
-**Regras**
-- Pode receber merges frequentes
-- Deve estar sempre “rodando” (build/test mínimos passando)
+## `main`
 
-> Se o projeto for pequeno ou muito simples, `develop` pode não existir.
-> Nesse caso, o fluxo vira “feature → main via PR”.
+### Função
 
----
+* Estado estável
+* Base para tags e releases
+* Referência de produção (quando aplicável)
 
-## 🧩 Branches de trabalho
+### Regras
 
-### `feature/<slug>`
-Usada para desenvolvimento de novas funcionalidades.
-
-**Quando usar**
-- toda alteração que adiciona comportamento novo
-
-**Exemplos**
-- `feature/chamado-finalizar`
-- `feature/importacao-notas`
+* Sem commits diretos
+* Só recebe merge vindo de `develop` ou branch de release
+* Deve estar sempre funcional
 
 ---
 
-### `fix/<slug>`
-Usada para correção de bugs.
+## `develop`
 
-**Quando usar**
-- correções em comportamento existente
+### Função
 
-**Exemplos**
-- `fix/dotenv-carregamento`
-- `fix/erro-validacao-itens`
+* Branch de integração contínua
+* Base para features, fixes e refactors
 
----
+### Regras
 
-### `refactor/<slug>`
-Usada para refatoração (sem alterar comportamento).
+* Recebe merges frequentes
+* Deve estar sempre "rodando"
+* Testes mínimos devem passar
 
-**Quando usar**
-- reestruturação interna, extração de métodos, reorganização
-
-**Exemplos**
-- `refactor/servico-finalizacao`
-- `refactor/repositorio-chamado`
+> Em projetos pequenos, posso simplificar para: `feature → main via PR`.
 
 ---
 
-### `chore/<slug>`
-Usada para mudanças de manutenção/infra.
+# 🧩 Branches de trabalho
 
-**Quando usar**
-- dependências, tooling, scripts, CI, Docker, formatação geral
+## `feature/<slug>`
 
-**Exemplos**
-- `chore/atualiza-deps`
-- `chore/ci-lint`
+Usada para novas funcionalidades.
+
+Exemplos:
+
+```
+feature/chamado-finalizar
+feature/importacao-notas
+```
 
 ---
 
-## 🔁 Fluxo padrão (dia a dia)
+## `fix/<slug>`
+
+Usada para correções de bug.
+
+Exemplos:
+
+```
+fix/dotenv-carregamento
+fix/erro-validacao-itens
+```
+
+---
+
+## `refactor/<slug>`
+
+Usada para refatoração sem alterar comportamento.
+
+Exemplos:
+
+```
+refactor/servico-finalizacao
+refactor/repositorio-chamado
+```
+
+---
+
+## `chore/<slug>`
+
+Usada para manutenção ou infraestrutura.
+
+Exemplos:
+
+```
+chore/atualiza-deps
+chore/ci-lint
+```
+
+---
+
+# 🔁 Fluxo padrão (dia a dia)
 
 1. Criar branch a partir da `develop`
 2. Trabalhar e commitar seguindo `git/commits.md`
-3. Abrir PR (mesmo que local/auto-revisão)
+3. Abrir PR (mesmo para auto‑revisão)
 4. Fazer merge na `develop`
 5. Quando estabilizar, promover para `main`
 
 ---
 
-## ✅ Regras de merge
-
-- Preferir merge via PR (mesmo sozinho) para criar “ponto de revisão”
-- Evitar commits gigantes: dividir em passos lógicos
-- Resolver conflitos na branch de trabalho, antes de integrar
-- Manter `develop` saudável (build/test passando)
-
----
-
-## ❌ Anti-padrões
-
-Evitar:
-
-- trabalhar dias direto em uma branch sem integrar
-- misturar feature + refactor + chore no mesmo branch
-- abrir branch a partir de branch antiga (desatualizada)
-- merge na `main` com código quebrado ou sem rodar o mínimo
-
----
-
-## 🧪 Checklist rápido
+# 🧪 Integração com testes e governança
 
 Antes de merge para `develop`:
 
-- [ ] branch está atualizada com a `develop`
-- [ ] commits seguem o padrão (`git/commits.md`)
-- [ ] testes/lint mínimos rodaram
-- [ ] mudança tem escopo claro (feature/fix/refactor/chore)
+* Testes mínimos devem passar
+* Lint básico deve rodar (quando aplicável)
+* Mudança tem escopo claro
+* Se houver decisão estrutural → ADR criada
 
 Antes de promover para `main`:
 
-- [ ] `develop` está estável
-- [ ] existe um motivo claro para “entregar agora”
-- [ ] versão/release está definida (se aplicável)
+* `develop` está estável
+* Versão foi definida (SemVer)
+* Release está documentada (se aplicável)
 
+---
+
+# 🔄 Relação com Versionamento (SemVer)
+
+* `main` representa versão estável
+* Tags devem ser criadas a partir de `main`
+* `develop` pode conter trabalho ainda não versionado
+
+Se a mudança quebra contrato público,
+revisar política de versão antes de merge em `main`.
+
+---
+
+# ❌ Anti‑padrões
+
+Evitar:
+
+* Trabalhar dias sem integrar com `develop`
+* Misturar feature + refactor + chore no mesmo branch
+* Criar branch a partir de branch desatualizada
+* Merge em `main` com build/test quebrados
+
+---
+
+# 🧠 Checklist rápido
+
+Antes de merge:
+
+* Branch está atualizada com `develop`
+* Commits seguem padrão
+* Testes rodaram
+* Escopo está claro
+* ADR criada se necessário
+
+---
+
+# 🗂 Fonte da Verdade
+
+* Histórico Git é fonte da evolução
+* `main` representa estado estável
+* Tags representam versões oficiais
+* ADR registra decisões estruturais
+
+Se histórico divergir da documentação,
+o Git prevalece.
+
+---
+
+# 📌 Nota final
+
+Branching disciplinado reduz conflito,
+diminui risco
+e facilita evolução sustentável do projeto.

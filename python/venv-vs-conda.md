@@ -1,175 +1,187 @@
 # Python — venv vs Conda (Decisão Consciente)
 
-Este documento registra **como eu escolho e uso ambientes Python**
-(`venv` ou `conda`) de forma consciente.
-
-O objetivo não é defender ferramenta,
-mas **escolher a ferramenta certa para o contexto certo**,
-evitando confusão, retrabalho e setups frágeis.
+Este documento registra **como escolho ambientes Python (`venv` ou `conda`)**
+de forma alinhada com arquitetura, Docker e governança do projeto.
 
 Ambiente é infraestrutura.
-E infraestrutura é decisão.
+Infraestrutura é decisão.
 
 ---
 
-## 🎯 O problema que isso resolve
+# 🎯 Problema que esta decisão resolve
 
-Sem uma decisão clara sobre ambiente, é comum surgir:
+Sem uma decisão clara sobre ambiente, surgem:
 
-- conflito de dependências
-- versões diferentes entre máquinas
-- “funciona pra mim”
-- setups difíceis de reproduzir
-- perda de tempo configurando ambiente
+* Conflitos de dependência
+* Versões diferentes entre máquinas
+* "Funciona na minha máquina"
+* Setup difícil de reproduzir
+* Perda de tempo configurando ambiente
 
-Este documento existe para **evitar esse caos**.
-
----
-
-## 🧠 Princípio central
-
-> **Ambiente deve ser simples, previsível e reproduzível.**
-
-Se o ambiente exige explicação longa,
-ele provavelmente está errado para aquele projeto.
+Este documento existe para evitar esse caos.
 
 ---
 
-## 🐍 `venv` — quando eu uso
+# 🧠 Princípio central
+
+> Ambiente deve ser simples, previsível e reproduzível.
+
+Se exige explicação longa para rodar,
+provavelmente não é a escolha ideal.
+
+---
+
+# 🐍 `venv` — quando utilizo
 
 Uso **`venv`** quando:
 
-- projeto é **backend/web** (Django, FastAPI, Flask)
-- dependências são majoritariamente Python puro
-- deploy usa Docker ou ambiente Linux padrão
-- quero simplicidade e alinhamento com produção
-- o projeto será compartilhado com outros devs
+* Projeto é backend/web (Django, FastAPI, Flask)
+* Dependências são majoritariamente Python puro
+* Deploy usa Docker ou ambiente Linux padrão
+* Projeto será compartilhado com outros devs backend
+* Quero alinhamento com produção
 
-### Vantagens do `venv`
+### Vantagens
 
-- nativo do Python
-- simples de entender
-- amplamente conhecido
-- funciona muito bem com Docker
-- menos “mágica”
+* Nativo do Python
+* Simples e previsível
+* Excelente integração com Docker
+* Menos abstração oculta
 
 ### Limitações
 
-- dependências de sistema precisam ser resolvidas fora
-- menos amigável para libs científicas pesadas
+* Dependências de sistema precisam ser resolvidas fora
+* Pode ser desconfortável para libs científicas pesadas
 
 ---
 
-## 🧪 `conda` — quando eu uso
+# 🧪 `conda` — quando utilizo
 
 Uso **Conda** quando:
 
-- trabalho com **ciência de dados**
-- uso bibliotecas com dependências nativas pesadas
+* Trabalho com ciência de dados
+* Uso bibliotecas com dependências nativas pesadas
   (NumPy, SciPy, TensorFlow, etc.)
-- preciso gerenciar versões de Python + libs não-Python
-- o ambiente não será dockerizado
+* Preciso gerenciar Python + dependências não-Python
+* O ambiente não será dockerizado
 
-### Vantagens do Conda
+### Vantagens
 
-- resolve dependências binárias complexas
-- ótimo para data science
-- ambientes isolados completos
-- menos dor com libs científicas
+* Resolve dependências binárias complexas
+* Excelente para Data Science
+* Ambientes isolados completos
 
 ### Limitações
 
-- mais pesado
-- menos alinhado com produção web
-- não costuma refletir o ambiente final de deploy
-- menos comum em times backend tradicionais
+* Mais pesado
+* Menos alinhado com produção web
+* Não reflete diretamente ambiente final de deploy
 
 ---
 
-## 🧠 Regra prática que eu sigo
+# 🧠 Regra prática consolidada
 
-- **Backend / Web / APIs** → `venv`
-- **Data Science / ML / Pesquisa** → `conda`
+* Backend / APIs / Web → `venv` (+ `uv` como interface)
+* Data Science / ML / Pesquisa → `conda`
 
-Evito misturar os dois no mesmo projeto.
+Evito misturar ambos no mesmo projeto.
 
 ---
 
-## 🧱 Como eu organizo com `venv`
+# 🧱 Organização com `venv`
 
-Padrão:
+Estrutura típica:
 
+```
 project/
-├── .venv/ # fora do Git
+├── .venv/      # fora do Git
 ├── pyproject.toml
 ├── README.md
-└── src/
-
+└── web/ ou src/
+```
 
 Regras:
-- `.venv` nunca entra no Git
-- dependências declaradas no `pyproject.toml`
-- setup documentado no README
+
+* `.venv` nunca entra no Git
+* Dependências declaradas no `pyproject.toml`
+* Setup documentado no README
+* Uso `uv` como interface oficial
 
 ---
 
-## 🧱 Como eu organizo com Conda
+# 🧱 Organização com Conda
 
 Padrão:
 
-- ambiente criado com nome do projeto
-- arquivo `environment.yml` documentado
-- dependências claras e versionadas
+* Ambiente com nome do projeto
+* `environment.yml` versionado
+* Versões explícitas quando estabilidade importa
 
-Uso Conda **quando ele resolve um problema real**,
-não por hábito.
-
----
-
-## 🚫 Anti-padrões comuns
-
-Evitar:
-
-- usar Conda só “porque sim”
-- usar `venv` com libs científicas pesadas sem necessidade
-- misturar pip + conda sem entender
-- não documentar como criar o ambiente
-- depender de ambiente global
+Conda é usado quando resolve problema real,
+não por preferência pessoal.
 
 ---
 
-## 🔄 Relação com Docker
+# 🐳 Relação com Docker
 
 Quando uso Docker:
 
-- o ambiente local (`venv` ou conda) é secundário
-- o Dockerfile vira a fonte de verdade
-- o importante é que **o código rode igual**
+* Dockerfile vira a fonte de verdade do ambiente
+* Ambiente local é apenas suporte
+* Código deve rodar igual dentro e fora do container
 
-Por isso, em projetos backend,
-`venv + Docker` costuma ser a combinação ideal.
+Para backend web:
+
+`venv + uv + Docker` é combinação preferencial.
 
 ---
 
-## 🧠 Checklist rápido de decisão
+# 🚫 Anti-padrões
 
-Antes de escolher, eu pergunto:
+Evitar:
 
-- este projeto vai para produção web?
-- usa libs científicas pesadas?
-- será dockerizado?
-- outras pessoas vão rodar isso?
+* Usar Conda sem necessidade real
+* Misturar `pip` e `conda` sem entender implicações
+* Não documentar como criar ambiente
+* Depender de ambiente global
+* Versionar `.venv`
+
+---
+
+# 🧠 Checklist de decisão
+
+Antes de escolher:
+
+* Vai para produção web?
+* Será dockerizado?
+* Usa libs científicas pesadas?
+* Outras pessoas vão rodar isso?
 
 Se:
-- web + docker → `venv`
-- ciência de dados → `conda`
+
+* Web + Docker → `venv`
+* Ciência de dados → `conda`
 
 ---
 
-## 📌 Nota final
+# 🗂 Fonte da Verdade
+
+* `pyproject.toml` define dependências (venv)
+* `environment.yml` define ambiente Conda
+* Dockerfile define ambiente de produção
+* ADR registra decisão estrutural relevante
+
+Se ambiente divergir do declarado:
+
+1. Recriar ambiente
+2. Atualizar arquivo de definição
+
+---
+
+# 📌 Nota final
 
 Ambiente não é preferência pessoal.
-É **decisão técnica baseada em contexto**.
+É decisão técnica baseada em contexto.
 
-Escolher bem aqui economiza
-tempo, energia e dor de cabeça depois.
+Escolher bem aqui economiza tempo,
+energia e dor de cabeça no futuro.

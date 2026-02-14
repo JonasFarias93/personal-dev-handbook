@@ -1,201 +1,223 @@
 # Django — MVT (Uso Prático)
 
-Este documento descreve **como eu utilizo o padrão MVT do Django**
-(Model–View–Template) de forma consciente.
+Este documento descreve **como utilizo o padrão MVT do Django**
+(Model–View–Template) de forma consciente e alinhada com Clean Architecture e DDD.
 
-O objetivo não é seguir o MVT “puro”, mas **adaptá-lo**
-para manter:
-- regras de negócio protegidas
-- domínio independente
-- views simples e previsíveis
+O objetivo não é seguir o MVT “puro”, mas adaptá-lo para manter:
+
+* Domínio protegido
+* Views simples e previsíveis
+* Framework como detalhe
+* Regras de negócio fora do HTTP
 
 Django é ferramenta.
 Arquitetura é decisão.
 
 ---
 
-## 🎯 Papel do MVT no Django
+# 🎯 Papel do MVT no meu modelo
 
-No Django, o MVT organiza **entrada, processamento e saída**:
+No Django, o MVT organiza entrada, processamento e saída:
 
-- **Model** → persistência e mapeamento de dados
-- **View** → entrada/saída (HTTP)
-- **Template** → apresentação
+* **Model** → persistência (infraestrutura)
+* **View** → adapter HTTP
+* **Template** → apresentação
 
 Importante:
-> No Django, *Views não são Controllers clássicos*  
-> Elas fazem **orquestração de request/response**.
+
+> Views não são Controllers clássicos.
+> Elas são adaptadores entre HTTP e Application.
 
 ---
 
-## 🧠 Princípio central
+# 🧠 Princípio central
 
-> **Views não contêm regra de negócio.**
+> Views não contêm regra de negócio.
 
 Views:
-- recebem input
-- validam superficialmente
-- chamam casos de uso
-- retornam resposta
+
+* Recebem input
+* Validam formato
+* Validam permissões
+* Chamam caso de uso
+* Retornam resposta
 
 Regra de negócio vive:
-- no domínio
-- ou na camada de aplicação
+
+* No domínio
+* Ou na camada de aplicação
 
 ---
 
-## 🧱 Como eu interpreto cada camada
+# 🧱 Como interpreto cada camada
 
-### Model (Django ORM)
+## 1️⃣ Model (Django ORM)
 
-Uso os Models principalmente como:
+Uso Models principalmente como:
 
-- mapeamento para banco
-- persistência de estado
-- infraestrutura
+* Mapeamento para banco
+* Persistência de estado
+* Infraestrutura técnica
 
-**Evito:**
-- regra de negócio complexa no model
-- lógica de fluxo
-- decisões de domínio profundas
+Evito:
+
+* Lógica de domínio profunda
+* Regras complexas de negócio
+* Decisões de fluxo
 
 Regra prática:
-> Model ≠ Domínio (na maioria dos projetos)
+
+> Model ≠ Domínio (na maioria dos projetos).
 
 Quando necessário, Models podem:
-- delegar para objetos de domínio
-- converter para aggregates
+
+* Converter para objetos de domínio
+* Delegar comportamento
 
 ---
 
-### View
+## 2️⃣ View
 
-Views são **finas**.
+Views são finas.
 
 Responsabilidades:
-- receber request
-- validar formato e permissões
-- chamar caso de uso
-- traduzir resposta (HTTP, template, JSON)
 
-Views **não devem**:
-- decidir regras
-- conter ifs complexos de negócio
-- manipular estado diretamente
+* Receber request
+* Validar formato
+* Checar autorização
+* Chamar caso de uso
+* Traduzir resposta (HTML, JSON, redirect)
+
+Não devem:
+
+* Decidir regra de negócio
+* Manipular invariantes
+* Conter fluxo complexo
+
+Se a view está grande, algo está no lugar errado.
 
 ---
 
-### Template
+## 3️⃣ Template
 
-Templates são **burros por design**.
+Templates são deliberadamente simples.
 
 Responsabilidades:
-- exibir dados
-- loops simples
-- condições básicas de apresentação
+
+* Exibir dados
+* Loops simples
+* Condições de apresentação
 
 Nunca coloco:
-- regra de negócio
-- cálculos importantes
-- decisões de fluxo
+
+* Regra de negócio
+* Cálculos importantes
+* Decisão estrutural
 
 Se ficou complexo:
-> lógica está no lugar errado.
+
+> A lógica está no lugar errado.
 
 ---
 
-## 🔁 Fluxo típico (request → domínio)
+# 🔁 Fluxo típico (HTTP → Domínio)
 
 1. Request chega na View
-2. View valida input básico (form/serializer)
+2. View valida input superficial
 3. View chama caso de uso (Application)
 4. Caso de uso executa domínio
-5. Resultado volta para a View
-6. View responde (template / JSON / redirect)
+5. Infraestrutura persiste
+6. Resultado volta para View
+7. View responde
 
-> O domínio nunca conhece HTTP.
-
----
-
-## 🧩 Forms e Serializers
-
-Forms/Serializers:
-- validam **entrada**
-- não validam **regra de negócio**
-
-Exemplos:
-- tipo errado
-- campo obrigatório
-- formato inválido
-
-Regras reais:
-- vivem no domínio
-- vivem nos casos de uso
+O domínio nunca conhece HTTP.
 
 ---
 
-## 🧪 Testes no contexto MVT
+# 🧩 Forms e Serializers
 
-- Views → testes de integração (request/response)
-- Domínio → testes unitários
-- Casos de uso → testes focados em fluxo
+Forms/Serializers validam:
 
-Se testar uma regra exige RequestFactory:
-> algo está errado.
+* Tipo
+* Presença
+* Formato
+
+Eles não validam:
+
+* Regras profundas
+* Invariantes
+* Estados inválidos de negócio
+
+Regra prática:
+
+> Validação estrutural ≠ validação de domínio.
 
 ---
 
-## ⚖️ Trade-offs aceitos
+# 🧪 Estratégia de testes no contexto MVT
+
+* Views → testes de integração (request/response)
+* Application → testes focados em fluxo
+* Domínio → testes unitários puros
+
+Se testar regra exige RequestFactory:
+
+> Camadas estão misturadas.
+
+---
+
+# ⚖️ Trade-offs conscientes
 
 Usar Django dessa forma implica:
 
-- duplicação ocasional de validação
-- mais camadas
-- menos “mágica” do framework
+* Mais camadas
+* Menos "mágica" do framework
+* Eventual duplicação de validação
 
 Aceito isso em troca de:
-- clareza
-- previsibilidade
-- domínio saudável
+
+* Clareza estrutural
+* Domínio protegido
+* Evolução segura
 
 ---
 
-## 🚫 Anti-padrões comuns em Django
+# 🚫 Anti-padrões que evito
 
-Evitar:
-
-- lógica de negócio em views
-- models “faz-tudo”
-- templates com lógica complexa
-- signals para regras críticas
-- usar ORM como se fosse domínio
+* Lógica de negócio em views
+* Models “faz-tudo”
+* Templates com lógica complexa
+* Signals para regras críticas
+* Usar ORM como se fosse domínio
 
 ---
 
-## 🔄 Adaptação consciente
+# 🗂 Fonte da Verdade
 
-Nem todo projeto precisa do mesmo rigor.
+Em projetos reais:
 
-Eu adapto:
-- projetos pequenos → menos camadas
-- projetos complexos → separação clara
+* Código é fonte primária
+* Testes validam comportamento
+* ADR registra decisões estruturais
 
-A regra é:
-> Django se adapta ao domínio, não o contrário.
+Se a implementação divergir deste documento:
 
----
-
-## 📚 Relação com outros documentos
-
-- `architecture/clean-architecture.md`
-- `architecture/ddd.md`
-- `django/project-structure.md`
-- `architecture/decisions.md`
+1. Atualizar documento
+2. Ou registrar novo ADR justificando mudança
 
 ---
 
-## 📌 Nota final
+# 📚 Relação com outros documentos
+
+* `architecture/clean-architecture.md`
+* `architecture/ddd.md`
+* `django/project-structure.md`
+* `architecture/decisions.md`
+
+---
+
+# 📌 Nota final
 
 Se a View ficou difícil de entender,
-o problema não é o Django.
+o problema raramente é o Django.
 É a arquitetura.

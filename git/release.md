@@ -1,145 +1,197 @@
 # Release — Guia Pessoal de Entrega
 
-Este documento define **como eu faço releases** (entregas) em projetos Git.
+Este documento define **como faço releases em projetos Git**,
+alinhado com SemVer, governança de branches e rastreabilidade histórica.
 
-O objetivo é garantir que a `main` represente um estado confiável,
-e que entregas sejam rastreáveis por versão/tag.
+Release não é apenas merge na `main`.
+É um marco versionado e consciente.
 
 ---
 
-## 🎯 Objetivo de um release
+# 🎯 Objetivo de um release
 
 Um release serve para:
 
-- marcar um **estado entregável**
-- criar **rastreabilidade** (o que entrou, quando entrou)
-- facilitar rollback (voltar para uma versão anterior)
-- comunicar evolução do projeto (mesmo que só para mim)
+* Marcar um estado entregável
+* Criar rastreabilidade (o que entrou e quando entrou)
+* Facilitar rollback
+* Comunicar evolução do projeto
+* Consolidar um ciclo de trabalho
 
-Release não é só “merge na main”.
-Release é **um marco**.
-
----
-
-## 🧠 Regra fundamental
-
-> **A `main` deve ser sempre entregável.**
-
-A `main` recebe apenas conteúdo que eu aceito colocar em produção
-ou considerar como versão estável do projeto.
+Release é um ponto de estabilidade.
 
 ---
 
-## 🧱 Conceitos usados
+# 🧠 Regra fundamental
 
-### Tag
-Um “apelido” que aponta para um commit específico.
+> A `main` deve ser sempre entregável.
 
-Uso: marcar o commit exato de uma entrega.
+A `main` recebe apenas código que eu aceito considerar estável.
 
 ---
 
-### Versão (SemVer)
+# 🧱 Conceitos utilizados
+
+## Tag
+
+Uma tag aponta para um commit específico.
+
+Uso:
+
+* Marcar o commit exato da entrega
+* Facilitar comparação entre versões
+
+---
+
+## Versionamento (SemVer)
+
 Uso **Semantic Versioning**:
 
-- **MAJOR**: quebra compatibilidade (mudança incompatível)
-- **MINOR**: nova funcionalidade compatível
-- **PATCH**: correção compatível
+* **MAJOR** → quebra compatibilidade
+* **MINOR** → nova funcionalidade compatível
+* **PATCH** → correção compatível
 
-Formato: `MAJOR.MINOR.PATCH`  
-Exemplo: `1.4.2`
+Formato:
 
----
-
-## 🧭 Quando fazer release
-
-Eu faço release quando:
-
-- existe um conjunto de mudanças que faz sentido “fechar”
-- há valor em versionar (deploy, entrega, marco técnico)
-- uma correção importante foi finalizada
-- um ciclo de desenvolvimento terminou (mesmo que pequeno)
-
-Não faço release para “qualquer merge”.
-
----
-
-## 🔁 Fluxo padrão de release (com `develop`)
-
-1. Garantir que `develop` está estável (build/test mínimos ok)
-2. Promover `develop` para `main`
-3. Criar tag com versão
-4. (Opcional) atualizar `CHANGELOG.md` se o projeto usar
-5. (Opcional) gerar release no GitHub/GitLab com notas
-
----
-
-## 🔁 Fluxo simples (sem `develop`)
-
-1. Feature/Fix branch → PR → `main`
-2. Quando fizer sentido, criar tag de versão no commit mergeado
-
----
-
-## 🏷️ Padrão de tags
-
-Formato adotado:
-
-- `vMAJOR.MINOR.PATCH`
+```
+MAJOR.MINOR.PATCH
+```
 
 Exemplos:
 
-- `v0.1.0`
-- `v1.0.0`
-- `v1.2.3`
+```
+1.0.0
+1.4.2
+2.0.0
+```
 
 ---
 
-## 📝 Notas de release (release notes)
+# 🔄 Relação entre commits e versão
 
-As notas devem responder:
+* `feat` normalmente impacta MINOR
+* `fix` impacta PATCH
+* Mudança que quebra contrato pode exigir MAJOR
 
-- O que mudou?
-- Para quem isso importa?
-- Há alguma migração/atenção necessária?
-
-Regra prática:
-- listar mudanças por categoria (feat/fix/refactor/chore/docs)
-- manter curto e útil
+Se houver dúvida estrutural sobre impacto,
+registrar ADR antes de definir versão.
 
 ---
 
-## 🧰 Checklist rápido de release
+# 🧭 Quando fazer release
+
+Faço release quando:
+
+* Existe um conjunto coerente de mudanças
+* Há valor em versionar (deploy, entrega, marco técnico)
+* Uma correção importante foi finalizada
+* Um ciclo de desenvolvimento foi fechado
+
+Não faço release para qualquer merge trivial.
+
+---
+
+# 🔁 Fluxo padrão com `develop`
+
+1. Garantir que `develop` está estável
+2. Promover `develop` para `main`
+3. Criar tag com versão
+4. (Opcional) Atualizar `CHANGELOG.md`
+5. (Opcional) Publicar release com notas
+
+---
+
+# 🔁 Fluxo simplificado (sem `develop`)
+
+1. Feature/Fix → PR → `main`
+2. Quando fizer sentido, criar tag no commit da `main`
+
+---
+
+# 🏷️ Padrão de tags
+
+Formato adotado:
+
+```
+vMAJOR.MINOR.PATCH
+```
+
+Exemplos:
+
+```
+v0.1.0
+v1.0.0
+v1.2.3
+```
+
+Tags devem sempre apontar para commit da `main`.
+
+---
+
+# 📝 Notas de release (Release Notes)
+
+Notas devem responder:
+
+* O que mudou?
+* Para quem isso importa?
+* Há impacto ou migração necessária?
+
+Organizar por categoria:
+
+* feat
+* fix
+* refactor
+* chore
+* docs
+
+Manter conciso e útil.
+
+---
+
+# 🧰 Checklist rápido de release
 
 Antes de promover para `main`:
 
-- [ ] `develop` (ou branch alvo) está estável
-- [ ] testes/lint mínimos rodaram
-- [ ] mudanças estão coerentes para uma entrega
-- [ ] não existem commits “genéricos” ou quebrados
-- [ ] dependências/configs foram revisadas (se houver)
+* [ ] `develop` está estável
+* [ ] Testes/lint rodaram
+* [ ] Mudanças são coerentes para uma entrega
+* [ ] Não há commits genéricos
+* [ ] Dependências e configurações foram revisadas
 
 Antes de criar tag:
 
-- [ ] versão escolhida faz sentido (SemVer)
-- [ ] tag aponta para o commit correto na `main`
+* [ ] Versão faz sentido (SemVer)
+* [ ] Tag aponta para commit correto
+* [ ] Histórico está limpo
 
 ---
 
-## ❌ Anti-padrões
+# 🚫 Anti-padrões
 
 Evitar:
 
-- release sem critério (“tag toda hora”)
-- versionamento que não reflete impacto real
-- `main` recebendo código quebrado “só pra guardar”
-- tags sem padrão (ex: `release-final-agora-vai`)
+* Tag a cada pequeno commit
+* Versionamento que não reflete impacto real
+* `main` com código quebrado
+* Tags sem padrão claro
 
 ---
 
-## 📌 Observação prática
+# 🗂 Fonte da Verdade
 
-Mesmo em projetos pessoais, **taggear versões vale muito**:
-- facilita comparar mudanças
-- ajuda a entender evolução
-- permite voltar rapidamente para um estado conhecido
+* `main` representa estado estável
+* Tags representam versões oficiais
+* Histórico Git é fonte da evolução
+* ADR registra decisões estruturais relevantes
+
+Se houver divergência entre documentação e histórico,
+Git prevalece.
+
+---
+
+# 📌 Nota final
+
+Versionar conscientemente ajuda a entender a evolução real do sistema.
+
+Release não é burocracia.
+É clareza histórica.

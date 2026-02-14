@@ -1,114 +1,138 @@
 # Architecture Decisions
 
-Este documento registra **decisões técnicas e arquiteturais relevantes**,  
-com o objetivo de **evitar ambiguidades**, **manter rastreabilidade** e  
-**facilitar onboarding** (inclusive do “eu do futuro”).
+Este documento define o **modelo oficial de ADR (Architecture Decision Record)**
+que deve ser utilizado em todos os projetos.
 
-Ele documenta **o porquê das escolhas**, não apenas o resultado final.
+Ele existe para:
 
----
-
-## 🎯 Objetivo
-
-- Tornar decisões arquiteturais explícitas
-- Preservar contexto ao longo do tempo
-- Evitar discussões recorrentes sobre decisões já tomadas
-- Facilitar revisões conscientes de decisões passadas
-- Criar histórico de aprendizado técnico
+* Tornar decisões estruturais explícitas
+* Garantir rastreabilidade ao longo do tempo
+* Evitar rediscussões desnecessárias
+* Preservar contexto para o “eu do futuro”
+* Estabelecer um padrão replicável entre projetos
 
 ---
 
-## 🧭 Quando registrar uma decisão
+# 🎯 Princípio Fundamental
 
-Uma decisão deve ser registrada aqui quando:
-
-- impacta a arquitetura ou estrutura do projeto
-- afeta múltiplas camadas ou módulos
-- define um padrão recorrente
-- impõe restrições futuras
-- resolve ambiguidades relevantes
-- contraria práticas comuns de forma deliberada
-
-Decisões triviais **não entram aqui**.
+> Decisão estrutural sem registro formal é apenas uma suposição compartilhada.
 
 ---
 
-## 🧱 Formato padrão das decisões
+# 📐 Modelo Oficial de ADR
 
-Cada decisão registrada neste documento deve seguir o formato abaixo:
+Cada projeto deve possuir seu próprio diretório de decisões (ex: `DECISIONS/`).
 
-**Data**  
+A numeração é **sequencial por projeto**:
+
+ADR-001
+ADR-002
+ADR-003
+...
+
+IDs não devem ser reutilizados.
+
+---
+
+## 🧱 Estrutura obrigatória de cada ADR
+
+**ID**
+ADR-XXX
+
+**Data**
 YYYY-MM-DD
 
-**Decisão**  
+**Status**
+Proposto | Aceito | Deprecado
+
+**Decisão**
 Descrição clara e objetiva do que foi decidido.
 
-**Contexto**  
-Motivação da decisão.  
-Problema, dúvida ou risco que existia no momento.
+**Contexto**
+Problema, risco ou ambiguidade existente no momento da decisão.
 
-**Consequências**  
-Impactos esperados da decisão:
-- trade-offs
-- ganhos
-- perdas
-- limitações futuras
+**Consequências**
+Impactos esperados:
 
----
-
-## 📚 Registro de decisões
+* trade-offs
+* ganhos
+* perdas
+* limitações futuras
 
 ---
 
-### 2026-01-20 — Documentar decisões arquiteturais explicitamente
+# 🗂 Organização recomendada
 
-**Decisão**  
-Todas as decisões arquiteturais relevantes devem ser registradas neste documento,
-seguindo o formato padrão definido acima.
+Em projetos pequenos, ADRs podem ficar em lista simples.
 
-**Contexto**  
-Decisões arquiteturais tendem a se perder com o tempo ou virar conhecimento implícito.
-Isso gera retrabalho, inconsistência e discussões repetidas sobre temas já resolvidos.
+Em projetos médios/grandes, recomenda-se:
 
-**Consequências**  
-- Maior clareza sobre o estado atual da arquitetura
-- Menor dependência de memória individual
-- Facilidade para revisão de decisões passadas
-- Custo adicional de documentação (aceito conscientemente)
+* Índice por domínio
+* Separação por contexto (Architecture, Domain, UI, Testing, etc.)
+* Tabela com ID, título, data e status
+
+O modelo usado no Expansao360 é considerado referência de maturidade.
 
 ---
 
-### 2026-01-20 — Priorizar decisões explícitas em vez de convenções implícitas
+# 🔄 Política de Evolução
 
-**Decisão**  
-Convenções arquiteturais devem ser tratadas como decisões explícitas,
-e não como suposições compartilhadas.
+* ADRs **não devem ser removidos**.
+* Mudanças estruturais exigem novo ADR.
+* Novo ADR deve referenciar o anterior.
+* Status deve refletir estado atual.
 
-**Contexto**  
-Convenções implícitas funcionam apenas enquanto o contexto está fresco.
-Com o tempo, passam a ser interpretadas de formas diferentes ou esquecidas.
-
-**Consequências**  
-- Redução de ambiguidades
-- Menor dependência de contexto oral
-- Maior previsibilidade arquitetural
-- Esforço inicial maior de alinhamento
+Deprecar não apaga o passado — apenas registra evolução.
 
 ---
 
-## 🔄 Revisão de decisões
+# 📚 Quando registrar uma decisão
 
-Decisões **podem e devem mudar** quando o contexto muda.
+Registrar quando a decisão:
 
-Quando uma decisão deixar de fazer sentido:
-- **não remover o registro**
-- adicionar uma nova decisão explicando a mudança
-- referenciar a decisão anterior
+* Impacta arquitetura ou estrutura do projeto
+* Afeta múltiplas camadas ou módulos
+* Define padrão recorrente
+* Impõe restrições futuras
+* Resolve ambiguidade estrutural relevante
+* Contraria prática comum deliberadamente
 
-Isso preserva histórico e aprendizado.
+Decisões triviais ou temporárias **não entram aqui**.
 
 ---
 
-## 📌 Nota final
+# 🗂 Metadados obrigatórios em documentação de projeto
 
-Uma decisão não documentada é apenas uma suposição compartilhada.
+Toda documentação estrutural futura (ADR, contratos técnicos, decisões de domínio, etc.)
+deve conter no topo:
+
+**Última revisão:** YYYY-MM-DD
+**Fonte:**
+
+* Código real (caminhos relevantes)
+* Testes automatizados relacionados
+* ADRs vinculadas
+
+---
+
+# 🧭 Regra de Fonte da Verdade (Source of Truth)
+
+* O código é a fonte primária.
+* Testes automatizados validam comportamento.
+* ADR registra intenção estrutural.
+
+Se documentação divergir do código:
+
+1. O código prevalece.
+2. A documentação deve ser atualizada.
+3. Se a divergência for estrutural, criar novo ADR.
+
+---
+
+# 📌 Nota Final
+
+Uma decisão importante o suficiente para gerar discussão
+é importante o suficiente para ser registrada.
+
+Se a documentação não aponta sua fonte de verdade,
+elas não é confiável.

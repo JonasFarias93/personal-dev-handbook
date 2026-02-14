@@ -1,139 +1,191 @@
 # Arquitetura — <Nome do Projeto>
 
 Este documento descreve a **arquitetura do projeto** e as principais decisões
-que orientam sua estrutura e evolução.
+que orientam sua estrutura, limites e evolução.
 
-Ele existe para responder:
-> “Como este sistema está organizado e por quê?”
+Ele responde:
 
----
-
-## 🎯 Objetivo da arquitetura
-
-Explique o **objetivo arquitetural** do projeto.
-
-- Que tipo de problema ele resolve?
-- Que qualidades são priorizadas? (ex: clareza, testabilidade, escalabilidade)
-- O que é conscientemente evitado?
+> Como este sistema está organizado e por quê?
 
 ---
 
-## 🧠 Princípios adotados
+# 🗂 Metadados obrigatórios
 
-Liste os princípios que guiam decisões técnicas neste projeto.
+**Última revisão:** YYYY-MM-DD
+**Fonte:**
+
+* Estrutura real do código (caminho relevante)
+* Testes automatizados
+* ADRs em `architecture/decisions.md`
+
+Se houver divergência entre este documento e o código,
+o código é a fonte primária.
+
+---
+
+# 🎯 Objetivo arquitetural
+
+Descrever:
+
+* Que problema o sistema resolve
+* Quais qualidades são priorizadas (ex: clareza, testabilidade, escalabilidade)
+* O que é conscientemente evitado
+
+Arquitetura deve refletir intenção estratégica.
+
+---
+
+# 🧠 Princípios adotados
+
+Listar princípios que guiam decisões técnicas.
 
 Exemplos:
-- separação clara de responsabilidades
-- domínio independente de frameworks
-- dependências apontam para dentro
-- simplicidade antes de abstração
 
-> Estes princípios orientam decisões descritas em `architecture/decisions.md`.
+* Separação clara de responsabilidades
+* Domínio independente de framework
+* Dependências apontam para dentro
+* Simplicidade antes de abstração prematura
+* Testabilidade como requisito estrutural
+
+> Decisões formais devem estar registradas em `architecture/decisions.md`.
 
 ---
 
-## 🏗️ Estilo arquitetural
+# 🏗 Estilo arquitetural adotado
 
-Descreva o estilo adotado e **por que ele foi escolhido**.
+Descrever o estilo escolhido e por quê.
 
 Exemplos:
-- MVT (Django)
-- Clean Architecture
-- DDD
-- Arquitetura em camadas
 
-Explique **como ele se manifesta na prática**, não a teoria.
+* Clean Architecture
+* DDD
+* Arquitetura em camadas
+* MVT (Django como adapter)
+
+Explicar **como ele se manifesta na prática**, não teoria.
 
 ---
 
-## 🧱 Camadas / Componentes
+# 🧱 Camadas / Componentes
 
-Descreva as principais camadas ou componentes do sistema.
+Descrever as principais camadas ou contextos.
 
-Para cada uma:
+Para cada componente:
 
-### <Camada / Componente>
+## <Camada / Contexto>
 
 **Responsabilidade**
-- O que faz
-- O que não faz
+
+* O que faz
+* O que não faz
 
 **Depende de**
-- (ex: domain, application)
+
+* (ex: domain, application)
 
 **Não depende de**
-- (ex: web, infra)
+
+* (ex: web, infra)
+
+Manter limites explícitos.
 
 ---
 
-## 🔁 Fluxos principais
+# 🔁 Fluxos principais
 
-Descreva os fluxos mais importantes do sistema.
+Descrever fluxos centrais do sistema.
 
-Exemplo:
-- criação de entidade
-- execução de regra de negócio
-- entrada via API / UI
-- persistência
+Exemplos:
 
-Use texto simples ou pseudo-diagrama.
+* Criação de entidade
+* Execução de regra de negócio
+* Entrada via API / UI
+* Persistência
 
----
+Preferir:
 
-## 📦 Dependências e integrações
-
-Liste dependências relevantes:
-
-- bancos de dados
-- serviços externos
-- bibliotecas críticas
-
-Explique **como e onde** elas se conectam à arquitetura.
+* Texto claro
+* Pseudo-diagramas simples
+* Sequência lógica de camadas
 
 ---
 
-## 🧪 Testabilidade
+# 📦 Dependências e integrações
 
-Explique como a arquitetura facilita (ou limita):
+Listar dependências relevantes:
 
-- testes unitários
-- testes de integração
-- isolamento de regras de negócio
+* Banco de dados
+* Serviços externos
+* Bibliotecas críticas
+
+Explicar:
+
+* Onde se conectam
+* Em qual camada vivem
+* Como são isoladas do domínio
 
 ---
 
-## ⚖️ Trade-offs aceitos
+# 🧪 Testabilidade
+
+Explicar como a arquitetura facilita:
+
+* Testes unitários
+* Testes de aplicação
+* Testes de integração
+* Isolamento de regra de negócio
+
+Se for difícil testar, justificar.
+
+---
+
+# ⚖️ Trade-offs aceitos
 
 Nenhuma arquitetura é perfeita.
 
-Liste conscientemente:
-- o que foi sacrificado
-- o que foi simplificado
-- o que ficou como dívida técnica aceitável
+Listar conscientemente:
+
+* O que foi simplificado
+* O que foi sacrificado
+* Dívida técnica assumida
+
+Trade-offs devem ser conscientes.
 
 ---
 
-## 🔄 Evolução esperada
+# 🔄 Evolução esperada
 
-Como a arquitetura deve evoluir?
+Descrever:
 
-- pontos de extensão planejados
-- riscos conhecidos
-- áreas mais sensíveis a mudança
-
----
-
-## 📚 Referências internas
-
-- `architecture/decisions.md` — decisões arquiteturais
-- `README.md` — visão geral do projeto
-- outros documentos relevantes
+* Pontos de extensão planejados
+* Riscos conhecidos
+* Áreas sensíveis a mudança
+* Possíveis refatorações futuras
 
 ---
 
-## 📌 Notas finais
+# 📚 Referências internas
 
-Qualquer observação importante:
-- decisões temporárias
-- alertas para o futuro
-- armadilhas já conhecidas
+* `architecture/decisions.md`
+* `README.md`
+* Documentos de domínio específicos
+* Workflow / Roadmap (quando relevante)
+
+---
+
+# 📌 Notas finais
+
+Qualquer observação relevante:
+
+* Decisões temporárias
+* Alertas para o futuro
+* Armadilhas já conhecidas
+
+---
+
+# 🗂 Regra final
+
+Arquitetura não documentada vira suposição.
+
+Se uma decisão foi relevante o suficiente para gerar discussão,
+elas deve estar registrada em ADR.

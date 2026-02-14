@@ -1,56 +1,59 @@
 # Docker Compose — Uso Prático
 
-Este documento define como eu uso **Docker Compose** para desenvolvimento local.
+Este documento define como utilizo **Docker Compose para desenvolvimento local**,
+alinhado com previsibilidade, governança e separação clara entre dev e produção.
 
-O objetivo é:
-- reduzir fricção de setup (onboarding rápido)
-- padronizar serviços (db/cache/broker)
-- deixar o ambiente reproduzível
-- evitar “na minha máquina funciona”
+Compose é ferramenta de orquestração de ambiente.
+Não é produção disfarçada.
 
 ---
 
-## 🎯 Quando usar Docker Compose
+# 🎯 Quando usar Docker Compose
 
 Uso Compose quando o projeto depende de:
-- banco (Postgres/MySQL)
-- cache (Redis)
-- filas (RabbitMQ)
-- serviços auxiliares (Mailhog, MinIO etc.)
 
-Se o projeto é 100% simples (só Python puro), posso não usar.
+* Banco de dados (Postgres/MySQL)
+* Cache (Redis)
+* Fila (RabbitMQ)
+* Serviços auxiliares (Mailhog, MinIO, etc.)
 
----
-
-## 🧠 Princípios que eu sigo
-
-- Compose é para **dev**, não “produção disfarçada”
-- Configuração via **env** (segredo não entra no Git)
-- Serviços têm nomes previsíveis: `db`, `redis`, `web`
-- Persistência local com volumes nomeados
-- Healthcheck sempre que fizer sentido (evita corrida de inicialização)
+Se o projeto for simples (sem dependências externas), posso optar por não usar.
 
 ---
 
-## 🧱 Estrutura recomendada
+# 🧠 Princípios que sigo
 
+* Compose é para desenvolvimento local
+* Configuração vem de variáveis de ambiente (.env)
+* Segredos nunca entram no Git
+* Serviços têm nomes previsíveis (`db`, `redis`, `web`)
+* Persistência local usa volumes nomeados
+* Serviços críticos possuem healthcheck
+* Mudanças estruturais relevantes podem exigir ADR
+
+---
+
+# 🧱 Estrutura recomendada
+
+```
 docker/
 ├── compose.md
 ├── dockerfile.md
 └── debugging.md
 
+
 docker-compose.yml
 .env.example
+```
 
-
-- `docker-compose.yml` na raiz (mais fácil pra comandos)
-- documentação dentro de `docker/`
+* `docker-compose.yml` fica na raiz (facilita comandos)
+* Documentação dentro de `docker/`
 
 ---
 
-## ✅ Compose base (Django + Postgres + Redis)
+# ✅ Compose base (Django + Postgres + Redis)
 
-Exemplo de `docker-compose.yml` para dev:
+Exemplo para desenvolvimento:
 
 ```yaml
 services:
@@ -99,86 +102,134 @@ services:
 
 volumes:
   pgdata:
-🔐 .env e .env.example
+```
+
+---
+
+# 🔐 `.env` e `.env.example`
+
 Regras:
 
-.env fica fora do Git
+* `.env` fica fora do Git
+* `.env.example` entra no Git como template
 
-.env.example entra no Git e serve de template
+Exemplo de `.env.example`:
 
-Exemplo de .env.example:
-
+```
 DJANGO_SETTINGS_MODULE=config.settings.dev
 DATABASE_URL=postgres://app:app@db:5432/app
 REDIS_URL=redis://redis:6379/0
 SECRET_KEY=dev-only-change-me
 DEBUG=1
-🔁 Comandos essenciais
-Subir o ambiente:
+```
 
+---
+
+# 🔁 Comandos essenciais
+
+Subir ambiente:
+
+```
 docker compose up -d --build
+```
+
 Ver logs:
 
+```
 docker compose logs -f web
+```
+
 Entrar no container:
 
+```
 docker compose exec web bash
+```
+
 Rodar migrações:
 
+```
 docker compose exec web python manage.py migrate
-Derrubar tudo:
+```
 
+Derrubar:
+
+```
 docker compose down
-Derrubar removendo volumes (zera o banco):
+```
 
+Remover volumes (zera banco):
+
+```
 docker compose down -v
+```
 
+---
 
+# 🧩 Boas práticas que sigo
 
-🧩 Boas práticas que eu sigo
-Volumes
+## Volumes
 
-usar volume nomeado para banco (pgdata)
+* Banco usa volume nomeado (`pgdata`)
+* Código usa bind mount (`.:/app`) para hot reload
 
-código montado como bind mount (.:/app) para hot reload
+## Portas
 
-Portas
+* Expor apenas o necessário
+* Padrão comum:
 
-expor portas só do que eu preciso acessar do host
+  * 8000 → web
+  * 5432 → postgres
+  * 6379 → redis
 
-manter padrão: 8000 web, 5432 postgres, 6379 redis
+## depends_on
 
-depends_on
+* Preferir `condition: service_healthy`
+* Evita corrida de inicialização
 
-preferir condition: service_healthy quando disponível
+---
 
-evita “web subiu mas DB ainda não”
+# 🚫 Anti-padrões que evito
 
-🚫 Anti-padrões comuns
+* Colocar segredo no `docker-compose.yml`
+* Usar Compose como ambiente de produção
+* Depender de ordem de start sem healthcheck
+* Rodar tudo como root sem necessidade
+* Persistir banco sem volume
 
-Evitar:
+---
 
-colocar segredo no docker-compose.yml
-
-usar Compose como “produção”
-
-depender de ordem de start sem healthcheck
-
-rodar tudo como root sem necessidade
-
-persistir estado crítico sem volume (perde dados sem querer)
-
-✅ Checklist rápido
+# ✅ Checklist rápido
 
 Antes de commitar mudanças no Compose:
 
- serviços têm nomes consistentes (db, redis, web)
+* Serviços têm nomes consistentes (`db`, `redis`, `web`)
+* `.env.example` está atualizado
+* Nenhum segredo foi adicionado ao Git
+* Volumes estão corretos
+* Serviços críticos têm healthcheck
 
- .env.example atualizado
+---
 
- segredos não foram adicionados no Git
+# 🗂 Fonte da Verdade
 
- volumes corretos (db persistente, código montado)
+* `docker-compose.yml` real no repositório é fonte primária
+* `.env` define configuração de ambiente
+* Dockerfile define ambiente de execução
+* ADR registra decisões estruturais relevantes
 
- healthcheck em serviços críticos (db/cache)
+Se a documentação divergir do código:
 
+1. Código prevalece
+2. Documento deve ser atualizado
+3. Se estrutural, registrar novo ADR
+
+---
+
+# 📌 Nota final
+
+Compose bem feito reduz fricção,
+acelera onboarding
+e elimina inconsistências de ambiente.
+
+Se está complexo demais,
+provavelmente está fazendo mais do que deveria.

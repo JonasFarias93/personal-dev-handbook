@@ -1,220 +1,252 @@
 # Python — uv (Uso Prático e Decisão Consciente)
 
-Este documento descreve **como e por que eu uso o `uv`**
+Este documento descreve **como e por que utilizo `uv`**
 como ferramenta padrão para gerenciamento de ambiente e dependências Python.
 
-O objetivo é:
-- reduzir fricção no setup local
-- acelerar instalação de dependências
-- padronizar comandos do dia a dia
-- evitar combinações frágeis (`pip + venv + scripts soltos`)
-
 `uv` não é moda.
-É uma **decisão de produtividade e previsibilidade**.
+É decisão de previsibilidade e redução de fricção.
 
 ---
 
-## 🎯 O problema que o uv resolve
+# 🎯 Problema que o uv resolve
 
-Sem uma ferramenta clara, é comum ter:
+Sem uma ferramenta oficial, é comum ter:
 
-- múltiplas formas de instalar dependências
-- ambientes inconsistentes entre devs
-- comandos diferentes por projeto
-- setup lento e propenso a erro
-- dependência de documentação extensa para rodar o projeto
+* Múltiplas formas de instalar dependências
+* Ambientes inconsistentes
+* Comandos diferentes por projeto
+* Setup lento e sujeito a erro
+* Dependência excessiva de documentação para rodar o projeto
 
-O `uv` resolve isso ao:
-- centralizar ambiente + dependências
-- usar `pyproject.toml` como fonte de verdade
-- padronizar comandos
+`uv` resolve isso ao:
 
----
-
-## 🧠 Princípio central
-
-> **Uma forma oficial de instalar, rodar e testar o projeto.**
-
-Se existem várias formas “válidas” de rodar o projeto,
-na prática nenhuma é confiável.
+* Centralizar ambiente + dependências
+* Usar `pyproject.toml` como fonte de verdade
+* Padronizar comandos
 
 ---
 
-## 🧩 O que é o uv (no meu uso)
+# 🧠 Princípio central
 
-No meu fluxo, o `uv` atua como:
+> Uma forma oficial de instalar, rodar e testar o projeto.
 
-- gerenciador de dependências
-- criador de ambiente virtual
-- executor de comandos
-- interface única para tooling Python
-
-Ele **substitui**:
-- `pip`
-- `pip-tools`
-- criação manual de `venv`
-- scripts frágeis de setup
-
-Ele **não substitui**:
-- `pyproject.toml`
-- Docker
-- CI
-- arquitetura do projeto
+Se existem várias formas "válidas" de rodar o projeto,
+nenhuma é realmente confiável.
 
 ---
 
-## 🐍 Relação com `venv`
+# 🧩 Papel do uv no meu fluxo
 
-O `uv` **usa `venv` por baixo**.
+O `uv` atua como:
+
+* Gerenciador de dependências
+* Criador de ambiente virtual
+* Executor de comandos
+* Interface única para tooling Python
+
+Ele substitui:
+
+* `pip` manual
+* `pip-tools`
+* Criação manual de `venv`
+* Scripts frágeis de setup
+
+Ele não substitui:
+
+* `pyproject.toml`
+* Docker
+* CI
+* Arquitetura do projeto
+
+---
+
+# 🐍 Relação com venv
+
+`uv` usa `venv` por baixo.
 
 Isso significa:
-- não cria um “novo tipo” de ambiente
-- continua compatível com tooling Python
-- não muda conceitos fundamentais
+
+* Continua compatível com tooling Python
+* Não altera fundamentos do ecossistema
+* Não cria ambiente proprietário
 
 Regra prática:
+
 > Usar `uv` é usar `venv` de forma automatizada e consistente.
 
 ---
 
-## 📦 Relação com `pyproject.toml`
+# 📦 Relação com `pyproject.toml`
 
-O `pyproject.toml` continua sendo a **fonte de verdade**:
+`pyproject.toml` continua sendo a fonte de verdade:
 
-- dependências
-- dependências de desenvolvimento
-- configuração de ferramentas
+* Dependências
+* Dependências de desenvolvimento
+* Configuração de ferramentas
 
-O `uv`:
-- lê o `pyproject.toml`
-- instala exatamente o que está definido ali
-- respeita grupos (`optional-dependencies`)
+`uv`:
+
+* Lê o `pyproject.toml`
+* Instala exatamente o que está definido
+* Respeita grupos de dependência
 
 Nenhuma dependência deve ser instalada “por fora”.
 
 ---
 
-## ⚙️ Fluxo padrão de uso (dia a dia)
+# ⚙️ Fluxo padrão de uso
 
-### Criar ambiente e instalar dependências
+## Instalar ambiente e dependências
 
-```bash
+```
 uv sync
+```
+
 Isso:
 
-cria o ambiente virtual (se não existir)
+* Cria ambiente virtual se não existir
+* Instala dependências declaradas
 
-instala dependências do projeto
+---
 
-instala dependências de desenvolvimento (quando configuradas)
+## Rodar comandos
 
-Rodar comandos do projeto
-Sempre uso uv run:
+Sempre uso:
 
+```
 uv run python manage.py runserver
 uv run pytest
 uv run black .
+```
+
 Isso garante:
 
-ambiente correto ativo
+* Ambiente correto ativo
+* Nenhuma dependência vazada do sistema
+* Comportamento previsível
 
-nenhuma dependência “vazada” do sistema
+---
 
-comportamento previsível
+## Adicionar dependência
 
-Adicionar dependência
+```
 uv add requests
+```
+
 Dependência de desenvolvimento:
 
+```
 uv add --dev pytest
-O pyproject.toml é atualizado automaticamente.
+```
 
-🧪 Relação com testes
-Testes sempre rodam via uv:
+`pyproject.toml` é atualizado automaticamente.
 
+---
+
+# 🧪 Relação com testes
+
+Testes sempre rodam via:
+
+```
 uv run pytest
+```
+
 Benefícios:
 
-elimina “pytest não encontrado”
+* Evita erro de ambiente
+* Garante dependências corretas
+* Reduz variação entre máquinas
 
-garante dependências corretas
+---
 
-reduz variação entre máquinas
+# 🐳 Relação com Docker
 
-🐳 Relação com Docker
 No meu fluxo:
 
-uv é usado localmente
+* `uv` é ferramenta local
+* Docker é ambiente de container
 
-Docker continua sendo a fonte de verdade para containers
+Dockerfile não depende de `uv`.
 
-Dockerfile não depende de uv
+Regras:
 
-Regras práticas:
+* Ambiente local → `uv`
+* Ambiente container → Dockerfile + Compose
 
-ambiente local → uv
+Separação clara evita acoplamento desnecessário.
 
-ambiente container → Dockerfile + Compose
+---
 
-Isso evita acoplamento desnecessário.
+# 🤖 Relação com CI
 
-🤖 Relação com CI
-Em CI, posso:
+Em CI posso:
 
-usar uv para acelerar setup
-
-ou usar pip direto (dependendo do ambiente)
+* Usar `uv` para acelerar setup
+* Ou usar `pip` direto, se simplificar pipeline
 
 Decisão depende de:
 
-tempo de pipeline
+* Tempo de execução
+* Suporte do runner
+* Simplicidade operacional
 
-suporte do runner
+Localmente, `uv` é padrão oficial.
 
-simplicidade desejada
+---
 
-Localmente, uv é sempre preferido.
+# 🚫 Quando NÃO usar uv
 
-🚫 Quando NÃO usar uv
-Evito usar uv quando:
+Evito usar quando:
 
-projeto é puramente educacional muito simples
+* Projeto extremamente simples
+* Ambiente já é rigidamente controlado por outra ferramenta
+* Time não aceita dependência adicional
 
-ambiente já é totalmente controlado por outra ferramenta
+Ferramenta só vale se houver alinhamento consciente.
 
-time não aceita dependência adicional (decisão consciente)
+---
 
-Ferramenta só vale se o time comprar a ideia.
+# 🚫 Anti-padrões
 
-🚫 Anti-padrões comuns
 Evitar:
 
-misturar pip install com uv
+* Misturar `pip install` com `uv`
+* Rodar comandos fora do `uv run`
+* Instalar dependência sem atualizar `pyproject.toml`
+* Tratar `uv` como opcional
+* Versionar `.venv`
 
-rodar comandos fora do uv run
+---
 
-instalar dependência sem atualizar pyproject.toml
+# 🧠 Checklist rápido
 
-tratar uv como “detalhe opcional”
+Antes de considerar uso correto:
 
-usar uv e ainda depender de .venv manual
+* `pyproject.toml` é fonte de verdade
+* Dependências são adicionadas via `uv add`
+* Comandos rodam via `uv run`
+* Não há `pip install` manual
+* `.venv` está fora do Git
 
-🧠 Checklist rápido
-Antes de considerar o uso do uv correto:
+---
 
- pyproject.toml é a fonte de verdade
+# 🗂 Fonte da Verdade
 
- dependências são adicionadas via uv add
+* `pyproject.toml` define dependências
+* `uv` instala exatamente o declarado
+* Ambiente virtual é descartável e recriável
+* Tags representam versão oficial do projeto
 
- comandos rodam via uv run
+Se ambiente divergir do declarado:
 
- não existe pip install manual
+1. Recriar com `uv sync`
+2. Revisar dependências no `pyproject.toml`
 
- .venv continua fora do Git
+---
 
-📌 Nota final
-uv não é sobre velocidade apenas.
-É sobre reduzir decisões repetidas.
+# 📌 Nota final
+
+`uv` reduz decisões repetidas.
 
 Menos escolhas no setup →
-mais energia para resolver o problema real.
+mais energia para resolver o probl
