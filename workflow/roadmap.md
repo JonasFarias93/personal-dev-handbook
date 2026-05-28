@@ -175,4 +175,4 @@ Se roadmap divergir da realidade do projeto:
 
 Sem roadmap, o projeto reage.
 
-Com roadmap, o projeto ev
+Com roadmap, o projeto evolui
