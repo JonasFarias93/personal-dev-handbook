@@ -50,20 +50,69 @@ Qualidade deve ser contínua.
 ## 1️⃣ Instalação do ambiente
 
 * Setup Python
-* Instalação de dependências (via `uv` ou `pip` conforme decisão do projeto)
+* Instalação de dependências via `uv`
 
 ## 2️⃣ Lint
 
-* Ruff (ou ferramenta definida no projeto)
+* Ruff
 
 ## 3️⃣ Testes
 
 * `pytest`
 * Falha bloqueia merge
 
-## 4️⃣ (Opcional) Type-check
+## 4️⃣ Type-check
 
-* `mypy` quando tipagem for relevante
+* `mypy`
+
+---
+
+# 🧩 Workflow de referência (Django + uv)
+
+Este é o workflow base usado nos projetos.
+Salvar em `.github/workflows/ci.yml`.
+
+```yaml
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - develop
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Lint (ruff)
+        run: uv run ruff check .
+
+      - name: Type-check (mypy)
+        run: uv run mypy .
+
+      - name: Tests (pytest)
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.test
+        run: uv run pytest
+```
+
+Ajustar `python-version` e `DJANGO_SETTINGS_MODULE` conforme o projeto.
 
 ---
 
@@ -73,6 +122,7 @@ Bloqueia merge quando:
 
 * Testes falham
 * Lint falha
+* Type-check falha
 * Setup não executa corretamente
 
 Não bloquear por:
@@ -93,6 +143,7 @@ Exemplo:
 * Testes passando
 * Código formatado
 * Lint limpo
+* Types verificados
 
 CI é braço automatizado da DoD.
 
@@ -104,7 +155,7 @@ CI não substitui Docker.
 
 Possíveis estratégias:
 
-* Testar diretamente no runner
+* Testar diretamente no runner (padrão)
 * Ou buildar imagem Docker e testar dentro dela
 
 Escolha depende do projeto.
@@ -141,9 +192,9 @@ Tag nunca deve ser criada com pipeline quebrado.
 
 # 🗂 Fonte da Verdade
 
-* Workflow YAML em `.github/workflows/`
-* `pyproject.toml` define dependências
-* `workflow/definition-of-done.md` define critérios humanos
+* Workflow YAML em `.github/workflows/ci.yml`
+* `pyproject.toml` define dependências e configuração de ferramentas
+* `workflow/DoD.md` define critérios humanos
 
 Se houver divergência:
 
@@ -176,6 +227,14 @@ Adicionar etapas quando:
 * Risco justificar
 
 Não adicionar por moda.
+
+---
+
+# 📚 Relação com outros documentos
+
+* `workflow/DoD.md` — critérios humanos que a CI complementa
+* `python/uv.md` — interface de ambiente usada no pipeline
+* `git/branching.md` — branches que disparam a CI
 
 ---
 
