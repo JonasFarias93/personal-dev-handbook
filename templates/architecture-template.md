@@ -168,6 +168,8 @@ Descrever:
 
 * `architecture/decisions.md`
 * `README.md`
+* `security/django.md` — decisões de segurança relevantes
+* `observability/logging.md` — estratégia de logs
 * Documentos de domínio específicos
 * Workflow / Roadmap (quando relevante)
 
@@ -188,4 +190,4 @@ Qualquer observação relevante:
 Arquitetura não documentada vira suposição.
 
 Se uma decisão foi relevante o suficiente para gerar discussão,
-elas deve estar registrada em ADR.
+ela deve estar registrada em ADR.
