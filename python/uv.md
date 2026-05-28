@@ -1,7 +1,8 @@
-# Python — uv (Uso Prático e Decisão Consciente)
+# Python — uv (Uso Prático)
 
-Este documento descreve **como e por que utilizo `uv`**
-como ferramenta padrão para gerenciamento de ambiente e dependências Python.
+Este documento descreve **como uso `uv`** no dia a dia.
+Ele responde **como** gerenciar ambiente — não qual escolher.
+Para decidir entre `venv` e `conda`, consulte `python/venv-vs-conda.md`.
 
 `uv` não é moda.
 É decisão de previsibilidade e redução de fricção.
@@ -90,17 +91,14 @@ Regra prática:
 * Instala exatamente o que está definido
 * Respeita grupos de dependência
 
-Nenhuma dependência deve ser instalada “por fora”.
+Nenhuma dependência deve ser instalada "por fora".
 
 ---
 
 # ⚙️ Fluxo padrão de uso
 
 ## Instalar ambiente e dependências
-
-```
 uv sync
-```
 
 Isso:
 
@@ -112,12 +110,9 @@ Isso:
 ## Rodar comandos
 
 Sempre uso:
-
-```
 uv run python manage.py runserver
 uv run pytest
 uv run black .
-```
 
 Isso garante:
 
@@ -128,16 +123,10 @@ Isso garante:
 ---
 
 ## Adicionar dependência
-
-```
 uv add requests
-```
 
 Dependência de desenvolvimento:
-
-```
 uv add --dev pytest
-```
 
 `pyproject.toml` é atualizado automaticamente.
 
@@ -146,10 +135,7 @@ uv add --dev pytest
 # 🧪 Relação com testes
 
 Testes sempre rodam via:
-
-```
 uv run pytest
-```
 
 Benefícios:
 
@@ -244,9 +230,17 @@ Se ambiente divergir do declarado:
 
 ---
 
+# 📚 Relação com outros documentos
+
+* `python/venv-vs-conda.md` — qual ambiente escolher
+* `python/pyproject.md` — declaração de dependências
+* `docker/_dockerfile.md` — ambiente de container
+
+---
+
 # 📌 Nota final
 
 `uv` reduz decisões repetidas.
 
 Menos escolhas no setup →
-mais energia para resolver o probl
+mais energia para resolver o problema.
