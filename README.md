@@ -40,6 +40,8 @@ Use como:
 * Antes de configurar Python → `python/`
 * Antes de configurar CI → `workflow/ci.md`
 * Antes de abrir Issues → `workflow/issues.md`
+* Antes de fazer deploy → `security/django.md`
+* Antes de commitar segredos → `security/secrets.md`
 
 ---
 
@@ -61,8 +63,8 @@ Define como estruturo sistemas e tomo decisões arquiteturais.
 
 * `python/pyproject.md`
 * `python/testing.md`
-* `python/uv.md`
-* `python/venv-vs-conda.md`
+* `python/uv.md` — como gerenciar ambiente e dependências
+* `python/venv-vs-conda.md` — qual ambiente escolher
 
 Define ambiente, dependências, testes e padrão oficial de setup.
 
@@ -98,6 +100,23 @@ Define versionamento, fluxo de branches e política de releases.
 
 ---
 
+## 🔐 Security
+
+* `security/secrets.md` — gestão de segredos e variáveis de ambiente
+* `security/django.md` — configurações obrigatórias de segurança em produção
+
+Define como protejo projetos contra exposição de dados e configuração negligenciada.
+
+---
+
+## 📡 Observabilidade
+
+* `observability/logging.md` — logging nativo e estratégia de captura de erros
+
+Define como torno erros visíveis e diagnosticáveis em produção.
+
+---
+
 ## ⚙️ Workflow (Governança)
 
 * `workflow/roadmap.md`
@@ -119,20 +138,18 @@ Modelos reutilizáveis para iniciar novos projetos com consistência.
 
 ---
 
-# 🗂 Estrutura do repositório
-
-```
-personal-dev-handbook/
+# 🗂 Estrutura do repositóriopersonal-dev-handbook/
 ├── architecture/
 ├── python/
 ├── django/
 ├── docker/
 ├── git/
+├── security/
+├── observability/
 ├── workflow/
 ├── templates/
 ├── CONTRIBUTING.md
 └── README.md
-```
 
 Cada arquivo deve responder uma pergunta clara.
 
@@ -148,7 +165,7 @@ Sempre que possível, documentos seguem:
 1. Contexto
 2. Regra prática
 3. Exemplos
-4. Anti‑padrões
+4. Anti-padrões
 5. Checklist
 6. Fonte da Verdade (quando aplicável)
 
