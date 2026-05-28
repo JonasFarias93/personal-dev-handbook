@@ -1,7 +1,8 @@
 # Python — venv vs Conda (Decisão Consciente)
 
-Este documento registra **como escolho ambientes Python (`venv` ou `conda`)**
-de forma alinhada com arquitetura, Docker e governança do projeto.
+Este documento registra **como escolho ambientes Python (`venv` ou `conda`)**.
+Ele responde **qual** ferramenta usar — não como usá-la.
+Para o fluxo de uso com `venv`, consulte `python/uv.md`.
 
 Ambiente é infraestrutura.
 Infraestrutura é decisão.
@@ -91,14 +92,11 @@ Evito misturar ambos no mesmo projeto.
 # 🧱 Organização com `venv`
 
 Estrutura típica:
-
-```
 project/
 ├── .venv/      # fora do Git
 ├── pyproject.toml
 ├── README.md
 └── web/ ou src/
-```
 
 Regras:
 
@@ -131,7 +129,6 @@ Quando uso Docker:
 * Código deve rodar igual dentro e fora do container
 
 Para backend web:
-
 `venv + uv + Docker` é combinação preferencial.
 
 ---
@@ -175,6 +172,14 @@ Se ambiente divergir do declarado:
 
 1. Recriar ambiente
 2. Atualizar arquivo de definição
+
+---
+
+# 📚 Relação com outros documentos
+
+* `python/uv.md` — como usar `venv` na prática (interface oficial)
+* `python/pyproject.md` — declaração de dependências
+* `docker/_dockerfile.md` — ambiente de container
 
 ---
 
